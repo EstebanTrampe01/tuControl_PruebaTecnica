@@ -2,7 +2,7 @@
 
 Para inicar el Proyecto usar estos comandos:
 
-## Construir e iniciar los 3 servicios o levantarlo en segundo Plano
+## Construir e iniciar los 3 servicios o levantarlo en segundo plano
 
 docker compose up --build
 
