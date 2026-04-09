@@ -6,10 +6,11 @@ import { SaleItem } from './entities/sale-item.entity';
 import { Inventory } from '../inventory/entities/inventory.entity';
 import { Product } from '../products/entities/product.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Branch } from '../branches/entities/branch.entity';
 
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Sale, SaleItem, Inventory, Product])],
+  imports: [TypeOrmModule.forFeature([Sale, SaleItem, Inventory, Product, Branch])],
   controllers: [SalesController],
   providers: [SalesService],
   exports: [TypeOrmModule]
