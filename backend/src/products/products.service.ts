@@ -1,9 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Category } from '../categories/entities/category.entity';
 import { Product } from './entities/product.entity';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { Inventory } from '../inventory/entities/inventory.entity';
+import { SaleItem } from '../sales/entities/sale-item.entity';
 
 @Injectable()
 export class ProductsService {
@@ -12,6 +19,10 @@ export class ProductsService {
     private readonly productsRepository: Repository<Product>,
     @InjectRepository(Category)
     private readonly categoriesRepository: Repository<Category>,
+    @InjectRepository(Inventory)
+    private readonly inventoryRepository: Repository<Inventory>,
+    @InjectRepository(SaleItem)
+    private readonly saleItemsRepository: Repository<SaleItem>,
   ) {}
 
   findAll(categoryId?: number) {
@@ -41,5 +52,73 @@ export class ProductsService {
     });
 
     return this.productsRepository.save(product);
+  }
+
+  async update(id: number, payload: UpdateProductDto) {
+    const product = await this.productsRepository.findOneBy({ id });
+
+    if (!product) {
+      throw new NotFoundException(`Producto con id: ${id} no encontrado`);
+    }
+
+    if (payload.categoryId !== undefined) {
+      const category = await this.categoriesRepository.findOneBy({
+        id: payload.categoryId,
+      });
+
+      if (!category) {
+        throw new NotFoundException(
+          `Category con id: ${payload.categoryId} no encontrada`,
+        );
+      }
+    }
+
+    if (payload.name !== undefined) {
+      product.name = payload.name;
+    }
+
+    if (payload.description !== undefined) {
+      product.description = payload.description ?? null;
+    }
+
+    if (payload.price !== undefined) {
+      product.price = payload.price.toFixed(2);
+    }
+
+    if (payload.imageUrl !== undefined) {
+      product.imageUrl = payload.imageUrl ?? null;
+    }
+
+    if (payload.categoryId !== undefined) {
+      product.categoryId = payload.categoryId;
+    }
+
+    return this.productsRepository.save(product);
+  }
+
+  async remove(id: number) {
+    const product = await this.productsRepository.findOneBy({ id });
+
+    if (!product) {
+      throw new NotFoundException(`Producto con id: ${id} no encontrado`);
+    }
+
+    const [inventoryUsageCount, saleUsageCount] = await Promise.all([
+      this.inventoryRepository.countBy({ productId: id }),
+      this.saleItemsRepository.countBy({ productId: id }),
+    ]);
+
+    if (inventoryUsageCount > 0 || saleUsageCount > 0) {
+      throw new ConflictException(
+        `No se puede eliminar el producto ${id} porque tiene inventario o ventas asociadas`,
+      );
+    }
+
+    await this.productsRepository.delete(id);
+
+    return {
+      id,
+      deleted: true,
+    };
   }
 }
