@@ -5,6 +5,7 @@ import { ThemeProvider } from 'next-themes';
 import './globals.css';
 import { Navbar } from '../components/organisms/Navbar';
 import { cn } from "@/lib/utils";
+import { Toaster } from '@/components/ui/sonner';
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -26,6 +27,7 @@ export default function RootLayout({
           <main className="container mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8 lg:py-10">
             {children}
           </main>
+          <Toaster richColors position="top-right" />
         </ThemeProvider>
       </body>
     </html>
