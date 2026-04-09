@@ -32,3 +32,9 @@ docker compose down -v
 - Frontend: http://localhost:3000
 - Backend: http://localhost:3001
 - PostgreSQL: localhost:5432
+
+
+## Probar test uniratios en el backend
+Es necesario que los conetenodres del docker ya esten corriendo bien, este comando se encargar de jalar pnpm test dentro del contenedor del backend para correr las pruebas unitarias con Jest
+
+docker compose exec backend pnpm test
