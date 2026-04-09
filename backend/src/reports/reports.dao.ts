@@ -15,8 +15,8 @@ export class ReportsDao {
   async getTopProducts(params: TopProductsParams) {
     const values: Array<string | number> = [params.from, params.to];
     let whereBranch = '';
-    
-    if (params.branchId) {
+
+    if (params.branchId !== undefined) {
       values.push(params.branchId);
       whereBranch = ` AND s.branch_id = $${values.length}`;
     }
