@@ -36,7 +36,8 @@ export class ReportsDao {
       JOIN sales s ON s.id = si.sale_id
       JOIN products p ON p.id = si.product_id
       JOIN branches b ON b.id = s.branch_id
-      WHERE s.sold_at BETWEEN $1::timestamptz AND $2::timestamptz
+      WHERE s.sold_at >= $1::date
+        AND s.sold_at < ($2::date + INTERVAL '1 day')
       ${whereBranch}
       GROUP BY b.id, b.name, p.id, p.name
       ORDER BY "quantitySold" DESC, "totalSold" DESC

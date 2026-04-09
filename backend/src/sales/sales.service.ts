@@ -17,6 +17,84 @@ import { Sale } from './entities/sale.entity';
 export class SalesService {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
+  async findAll() {
+    const rows = await this.dataSource
+      .createQueryBuilder()
+      .select('s.id', 'saleId')
+      .addSelect('s.branch_id', 'branchId')
+      .addSelect('s.sold_at', 'soldAt')
+      .addSelect('si.product_id', 'productId')
+      .addSelect('si.quantity', 'quantity')
+      .addSelect('si.unit_price', 'unitPrice')
+      .from(Sale, 's')
+      .leftJoin(SaleItem, 'si', 'si.sale_id = s.id')
+      .orderBy('s.sold_at', 'DESC')
+      .addOrderBy('s.id', 'DESC')
+      .getRawMany<{
+        saleId: string;
+        branchId: string;
+        soldAt: string;
+        productId: string | null;
+        quantity: string | null;
+        unitPrice: string | null;
+      }>();
+
+    const salesMap = new Map<
+      number,
+      {
+        id: number;
+        branchId: number;
+        soldAt: string;
+        items: Array<{
+          productId: number;
+          quantity: number;
+          unitPrice: number;
+          lineTotal: number;
+        }>;
+        total: number;
+      }
+    >();
+
+    for (const row of rows) {
+      const id = Number(row.saleId);
+      const branchId = Number(row.branchId);
+
+      let sale = salesMap.get(id);
+
+      if (!sale) {
+        sale = {
+          id,
+          branchId,
+          soldAt: row.soldAt,
+          items: [],
+          total: 0,
+        };
+
+        salesMap.set(id, sale);
+      }
+
+      if (row.productId === null || row.quantity === null || row.unitPrice === null) {
+        continue;
+      }
+
+      const productId = Number(row.productId);
+      const quantity = Number(row.quantity);
+      const unitPrice = Number(row.unitPrice);
+      const lineTotal = this.roundMoney(quantity * unitPrice);
+
+      sale.items.push({
+        productId,
+        quantity,
+        unitPrice: this.roundMoney(unitPrice),
+        lineTotal,
+      });
+
+      sale.total = this.roundMoney(sale.total + lineTotal);
+    }
+
+    return Array.from(salesMap.values());
+  }
+
   async create(payload: CreateSaleDto) {
     this.validateNoDuplicateProducts(payload);
 
