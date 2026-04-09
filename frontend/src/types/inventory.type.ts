@@ -14,3 +14,15 @@ export interface GetInventoryQuery {
   productId?: number;
   branchId?: number;
 }
+
+export interface InventoryMatrixCell {
+  branchId: number;
+  branchName: string;
+  stock: number;
+}
+
+export interface InventoryMatrixRow {
+  productId: number;
+  productName: string;
+  cells: InventoryMatrixCell[];
+}

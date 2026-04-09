@@ -20,7 +20,7 @@ export const STOCK_COLORS = {
 } as const;
 
 export const getStockLevel = (stock: number) => {
-  if (stock <= 5) return 'critical';
-  if (stock <= 15) return 'medium';
-  return 'high';
+  if (stock >= 10) return 'high';
+  if (stock >= 5) return 'medium';
+  return 'critical';
 };
