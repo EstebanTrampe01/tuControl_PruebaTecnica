@@ -14,3 +14,5 @@ export interface CreateProductDto {
   imageUrl?: string;
   categoryId: number;
 }
+
+export type UpdateProductDto = Partial<CreateProductDto>;
