@@ -7,5 +7,4 @@ import { ReportsDao } from './reports.dao';
   controllers: [ReportsController],
   providers: [ReportsService, ReportsDao],
 })
-
 export class ReportsModule {}
