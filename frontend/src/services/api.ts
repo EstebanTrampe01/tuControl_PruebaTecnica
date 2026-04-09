@@ -1,5 +1,10 @@
+const BROWSER_API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+
+const SERVER_API_URL =
+  process.env.API_URL_INTERNAL ?? process.env.API_URL ?? BROWSER_API_URL;
+
 export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+  typeof window === 'undefined' ? SERVER_API_URL : BROWSER_API_URL;
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
