@@ -64,14 +64,14 @@ export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) 
   }
 
   return (
-    <Table>
+    <Table className="[&_tbody_tr]:border-b-slate-100 [&_tbody_tr:hover]:bg-primary-50/60 dark:[&_tbody_tr]:border-zinc-800 dark:[&_tbody_tr:hover]:bg-zinc-800/60 [&_tr:last-child]:border-0">
       <TableHeader>
-        <TableRow>
-          <TableHead className="w-16">Imagen</TableHead>
-          <TableHead>Nombre</TableHead>
-          <TableHead>Categoría</TableHead>
-          <TableHead className="text-right">Precio</TableHead>
-          <TableHead className="text-right w-28">Acciones</TableHead>
+        <TableRow className="operational-table-head-row">
+          <TableHead className="operational-table-head-cell w-16">Imagen</TableHead>
+          <TableHead className="operational-table-head-cell">Nombre</TableHead>
+          <TableHead className="operational-table-head-cell">Categoría</TableHead>
+          <TableHead className="operational-table-head-cell text-right">Precio</TableHead>
+          <TableHead className="operational-table-head-cell w-28 text-right">Acciones</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

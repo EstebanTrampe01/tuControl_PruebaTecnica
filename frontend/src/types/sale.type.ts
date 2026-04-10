@@ -22,3 +22,8 @@ export interface CreateSaleDto {
   branchId: number;
   items: CreateSaleItemDto[];
 }
+
+export interface SaleCartItem {
+  productId: number;
+  quantity: number;
+}

@@ -33,12 +33,12 @@ export function InventoryGrid({ rows, onEditCell }: InventoryGridProps) {
   }
 
   return (
-    <Table>
+    <Table className="[&_tbody_tr]:border-b-slate-100 [&_tbody_tr:hover]:bg-primary-50/60 dark:[&_tbody_tr]:border-zinc-800 dark:[&_tbody_tr:hover]:bg-zinc-800/60 [&_tr:last-child]:border-0">
       <TableHeader>
-        <TableRow>
-          <TableHead>Producto</TableHead>
+        <TableRow className="operational-table-head-row">
+          <TableHead className="operational-table-head-cell">Producto</TableHead>
           {BRANCHES.map((branch) => (
-            <TableHead key={branch} className="text-center">
+            <TableHead key={branch} className="operational-table-head-cell text-center">
               {branch}
             </TableHead>
           ))}
@@ -63,7 +63,7 @@ export function InventoryGrid({ rows, onEditCell }: InventoryGridProps) {
                       stock: cell.stock,
                     })
                   }
-                  className="rounded-lg p-1 transition-colors hover:bg-primary-50 dark:hover:bg-secondary"
+                  className="rounded-lg p-1 transition-colors hover:bg-primary-50 dark:hover:bg-zinc-800"
                   aria-label={`Ajustar stock de ${row.productName} en ${cell.branchName}`}
                 >
                   <StockBadge stock={cell.stock} />
