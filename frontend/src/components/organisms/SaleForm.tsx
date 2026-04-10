@@ -172,7 +172,6 @@ export function SaleForm({
           onClick={onSubmit}
           isLoading={isSubmitting}
           disabled={isSubmitDisabled}
-          className="bg-amber-500 text-white hover:bg-amber-600"
         >
           Confirmar venta
         </Button>

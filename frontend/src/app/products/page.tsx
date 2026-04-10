@@ -7,6 +7,7 @@ import { Spinner } from '@/components/atoms/Spinner';
 import { ProductTable } from '@/components/organisms/ProductTable';
 import { ProductForm } from '@/components/organisms/ProductForm';
 import { ConfirmDialog } from '@/components/molecules/ConfirmDialog';
+import { ProductDetailsDialog } from '@/components/molecules/ProductDetailsDialog';
 import { PageLead } from '@/components/molecules/PageLead';
 import {
   Dialog,
@@ -17,14 +18,26 @@ import {
 import { productsService } from '@/services/products.service';
 import { ApiError } from '@/services/api';
 import { Product, CreateProductDto } from '@/types/product.type';
-import { Plus } from 'lucide-react';
+import { Plus, SlidersHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
 import { LedgerPanel } from '@/components/templates/LedgerPanel';
+import { Input } from '@/components/ui/input';
+import { CATEGORIES } from '@/constants';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function ProductsPage() {
   // ─── Estado local ─────────────────────────────────────
   const [products, setProducts] = React.useState<Product[]>([]);
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [categoryFilter, setCategoryFilter] = React.useState<'all' | number>('all');
   const [isLoading, setIsLoading] = React.useState(true);
+  const [isHydrated, setIsHydrated] = React.useState(false);
   const [loadError, setLoadError] = React.useState<string | null>(null);
 
   // Modal de formulario (crear / editar)
@@ -36,6 +49,10 @@ export default function ProductsPage() {
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [deletingProduct, setDeletingProduct] = React.useState<Product | null>(null);
   const [deleteLoading, setDeleteLoading] = React.useState(false);
+
+  // Modal de detalles
+  const [detailsOpen, setDetailsOpen] = React.useState(false);
+  const [detailsProduct, setDetailsProduct] = React.useState<Product | null>(null);
 
   const loadProducts = React.useCallback(async () => {
     try {
@@ -52,12 +69,37 @@ export default function ProductsPage() {
   }, []);
 
   React.useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  React.useEffect(() => {
     void loadProducts();
   }, [loadProducts]);
 
   const handleRetry = () => {
     void loadProducts();
   };
+
+  const filteredProducts = React.useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+
+    return products.filter((product) => {
+      const matchCategory =
+        categoryFilter === 'all' || product.categoryId === categoryFilter;
+      if (!matchCategory) return false;
+
+      if (!query) return true;
+
+      const category = (CATEGORIES[product.categoryId - 1] ?? '').toLowerCase();
+      const description = (product.description ?? '').toLowerCase();
+
+      return (
+        product.name.toLowerCase().includes(query) ||
+        description.includes(query) ||
+        category.includes(query)
+      );
+    });
+  }, [categoryFilter, products, searchTerm]);
 
   // ─── Handlers ──────────────────────────────────────────
 
@@ -69,6 +111,16 @@ export default function ProductsPage() {
   const handleOpenEdit = (product: Product) => {
     setEditingProduct(product);
     setFormOpen(true);
+  };
+
+  const handleOpenDetails = (product: Product) => {
+    setDetailsProduct(product);
+    setDetailsOpen(true);
+  };
+
+  const handleCloseDetails = () => {
+    setDetailsOpen(false);
+    setDetailsProduct(null);
   };
 
   const handleCloseForm = () => {
@@ -142,13 +194,55 @@ export default function ProductsPage() {
         kicker="Catalog Control"
         title="Catálogo de productos"
         description="Administra altas, ajustes y bajas del catálogo compartido de NovaTech Store."
-        actions={<Button onClick={handleOpenCreate} className="bg-amber-500 text-white hover:bg-amber-600">
+        actions={<Button onClick={handleOpenCreate}>
           <Plus className="mr-1.5 h-4 w-4" />
           Nuevo Producto
         </Button>}
       />
 
       <LedgerPanel>
+        <div className="mb-4 grid gap-3 md:grid-cols-[1fr_auto_auto] md:items-end">
+          <div className="space-y-1.5">
+            <label htmlFor="products-search" className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+              Buscar producto
+            </label>
+            <Input
+              id="products-search"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Nombre, descripción o categoría"
+              disabled={isHydrated ? isLoading : undefined}
+            />
+          </div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="h-10">
+                <SlidersHorizontal className="mr-2 h-4 w-4" />
+                Filtros
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem onClick={() => setCategoryFilter('all')}>
+                Todas las categorías
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              {CATEGORIES.map((category, index) => (
+                <DropdownMenuItem
+                  key={category}
+                  onClick={() => setCategoryFilter(index + 1)}
+                >
+                  {category}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <p className="text-xs text-muted-foreground md:text-right">
+            {filteredProducts.length} de {products.length} productos
+          </p>
+        </div>
+
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Spinner className="h-8 w-8 text-primary" />
@@ -165,12 +259,24 @@ export default function ProductsPage() {
           </div>
         ) : (
           <ProductTable
-            products={products}
+            products={filteredProducts}
+            onView={handleOpenDetails}
             onEdit={handleOpenEdit}
             onDelete={handleOpenDelete}
+            emptyMessage={
+              searchTerm.trim().length > 0
+                ? 'No hay productos que coincidan con la búsqueda.'
+                : 'No hay productos registrados aún.'
+            }
           />
         )}
       </LedgerPanel>
+
+      <ProductDetailsDialog
+        open={detailsOpen}
+        product={detailsProduct}
+        onClose={handleCloseDetails}
+      />
 
       {/* Modal Crear / Editar */}
       <Dialog open={formOpen} onOpenChange={(nextOpen) => !nextOpen && handleCloseForm()}>

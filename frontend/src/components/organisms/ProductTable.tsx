@@ -21,12 +21,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Eye, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
 interface ProductTableProps {
   products: Product[];
+  onView: (product: Product) => void;
   onEdit: (product: Product) => void;
   onDelete: (product: Product) => void;
+  emptyMessage?: string;
 }
 
 /**
@@ -36,7 +38,13 @@ interface ProductTableProps {
  * Mobile-first: en pantallas pequeñas la tabla tiene overflow-x-auto (ya en Table).
  * No usa Framer Motion para tablas (regla de explicacion.md).
  */
-export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) {
+export function ProductTable({
+  products,
+  onView,
+  onEdit,
+  onDelete,
+  emptyMessage = 'No hay productos registrados aún.',
+}: ProductTableProps) {
   const [failedImageIds, setFailedImageIds] = React.useState<Set<number>>(
     () => new Set()
   );
@@ -57,7 +65,7 @@ export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) 
           </svg>
         </div>
         <p className="text-sm text-muted-foreground">
-          No hay productos registrados aún.
+          {emptyMessage}
         </p>
       </div>
     );
@@ -139,6 +147,10 @@ export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) 
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onView(product)}>
+                    <Eye className="h-4 w-4" />
+                    Detalles
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onEdit(product)}>
                     <Pencil className="h-4 w-4" />
                     Editar

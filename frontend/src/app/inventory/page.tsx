@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { BRANCHES } from '@/constants';
+import { BRANCHES, getStockLevel } from '@/constants';
 import { PageLead } from '@/components/molecules/PageLead';
 import { inventoryService } from '@/services/inventory.service';
 import { productsService } from '@/services/products.service';
@@ -24,6 +24,15 @@ import { InventoryItem, InventoryMatrixRow } from '@/types/inventory.type';
 import { Product } from '@/types/product.type';
 import { toast } from 'sonner';
 import { LedgerPanel } from '@/components/templates/LedgerPanel';
+import { SlidersHorizontal } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { NumberStepper } from '@/components/molecules/NumberStepper';
 
 type EditingCell = {
   productId: number;
@@ -60,7 +69,10 @@ const buildInventoryRows = (
 
 export default function InventoryPage() {
   const [rows, setRows] = React.useState<InventoryMatrixRow[]>([]);
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [stockFilter, setStockFilter] = React.useState<'all' | 'high' | 'medium' | 'critical'>('all');
   const [isLoading, setIsLoading] = React.useState(true);
+  const [isHydrated, setIsHydrated] = React.useState(false);
   const [loadError, setLoadError] = React.useState<string | null>(null);
 
   const [editingCell, setEditingCell] = React.useState<EditingCell | null>(null);
@@ -85,6 +97,10 @@ export default function InventoryPage() {
     } finally {
       setIsLoading(false);
     }
+  }, []);
+
+  React.useEffect(() => {
+    setIsHydrated(true);
   }, []);
 
   React.useEffect(() => {
@@ -152,6 +168,19 @@ export default function InventoryPage() {
     }
   };
 
+  const filteredRows = React.useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+
+    return rows.filter((row) => {
+      const matchSearch = query.length === 0 || row.productName.toLowerCase().includes(query);
+      if (!matchSearch) return false;
+
+      if (stockFilter === 'all') return true;
+
+      return row.cells.some((cell) => getStockLevel(cell.stock) === stockFilter);
+    });
+  }, [rows, searchTerm, stockFilter]);
+
   return (
     <PageTransition>
       <PageLead
@@ -161,6 +190,47 @@ export default function InventoryPage() {
       />
 
       <LedgerPanel>
+        <div className="mb-4 grid gap-3 md:grid-cols-[1fr_auto_auto] md:items-end">
+          <div className="space-y-1.5">
+            <Label htmlFor="inventory-search">Buscar producto</Label>
+            <Input
+              id="inventory-search"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Nombre del producto"
+              disabled={isHydrated ? isLoading : undefined}
+            />
+          </div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="h-10">
+                <SlidersHorizontal className="mr-2 h-4 w-4" />
+                Filtros
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem onClick={() => setStockFilter('all')}>
+                Todos los niveles
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setStockFilter('high')}>
+                Solo stock alto
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStockFilter('medium')}>
+                Solo stock medio
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStockFilter('critical')}>
+                Solo stock crítico
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <p className="text-xs text-muted-foreground md:text-right">
+            {filteredRows.length} de {rows.length} productos
+          </p>
+        </div>
+
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Spinner className="h-8 w-8 text-primary" />
@@ -173,7 +243,15 @@ export default function InventoryPage() {
             </Button>
           </div>
         ) : (
-          <InventoryGrid rows={rows} onEditCell={handleEditCell} />
+          <InventoryGrid
+            rows={filteredRows}
+            onEditCell={handleEditCell}
+            emptyMessage={
+              searchTerm.trim().length > 0
+                ? 'No hay productos que coincidan con la búsqueda en inventario.'
+                : 'No hay productos para mostrar inventario.'
+            }
+          />
         )}
       </LedgerPanel>
 
@@ -197,14 +275,15 @@ export default function InventoryPage() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="new-stock">Nuevo stock</Label>
-                <Input
+                <NumberStepper
                   id="new-stock"
-                  type="number"
-                  min="0"
-                  step="1"
+                  min={0}
+                  step={1}
                   value={newStock}
-                  onChange={(event) => setNewStock(event.target.value)}
+                  onChange={setNewStock}
                   disabled={saveLoading}
+                  className="w-full"
+                  inputClassName="w-auto flex-1"
                 />
               </div>
 

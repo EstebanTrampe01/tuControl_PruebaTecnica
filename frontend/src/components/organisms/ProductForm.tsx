@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { NumberStepper } from '@/components/molecules/NumberStepper';
 import { CATEGORIES } from '@/constants';
 import { CreateProductDto, Product } from '@/types/product.type';
 
@@ -114,15 +115,15 @@ export function ProductForm({ initialData, onSubmit, isLoading, onCancel }: Prod
 
       <div className="space-y-1.5">
         <Label htmlFor="product-price">Precio ($)</Label>
-        <Input
+        <NumberStepper
           id="product-price"
-          type="number"
-          step="0.01"
-          min="0"
+          step={0.01}
+          min={0}
           value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          placeholder="0.00"
+          onChange={setPrice}
           disabled={isLoading}
+          className="w-fit"
+          inputClassName="w-28"
         />
       </div>
 

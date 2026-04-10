@@ -10,27 +10,32 @@ import {
 
 export class UpdateProductDto {
   @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(150)
+  @IsString({ message: 'El nombre debe ser texto.' })
+  @IsNotEmpty({ message: 'El nombre no puede estar vacío.' })
+  @MaxLength(150, { message: 'El nombre debe tener como máximo 150 caracteres.' })
   name?: string;
 
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'La descripción debe ser texto.' })
   description?: string | null;
 
   @IsOptional()
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
+  @IsNumber(
+    { maxDecimalPlaces: 2 },
+    { message: 'El precio debe ser un número válido con hasta 2 decimales.' },
+  )
+  @Min(0, { message: 'El precio no puede ser menor que 0.' })
   price?: number;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(500)
+  @IsString({ message: 'La URL de imagen debe ser texto.' })
+  @MaxLength(500, {
+    message: 'La URL de imagen debe tener como máximo 500 caracteres.',
+  })
   imageUrl?: string | null;
 
   @IsOptional()
-  @IsInt()
-  @Min(1)
+  @IsInt({ message: 'La categoría debe ser un identificador numérico.' })
+  @Min(1, { message: 'La categoría debe ser válida.' })
   categoryId?: number;
 }

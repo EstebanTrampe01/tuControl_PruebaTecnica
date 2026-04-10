@@ -19,4 +19,7 @@ export class Product {
   
   @Column({ name: 'category_id', type: 'int' })
   categoryId: number;
+
+  @Column({ name: 'deleted_at', type: 'timestamptz', nullable: true })
+  deletedAt: Date | null;
 }

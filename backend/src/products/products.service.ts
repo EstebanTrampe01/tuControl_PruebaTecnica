@@ -1,10 +1,9 @@
 import {
-  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Category } from '../categories/entities/category.entity';
 import { Product } from './entities/product.entity';
@@ -26,8 +25,12 @@ export class ProductsService {
   ) {}
 
   findAll(categoryId?: number) {
+    const where = categoryId
+      ? { categoryId, deletedAt: IsNull() }
+      : { deletedAt: IsNull() };
+
     return this.productsRepository.find({
-      where: categoryId ? { categoryId } : {},
+      where,
       order: { id: 'ASC' },
     });
   }
@@ -55,7 +58,12 @@ export class ProductsService {
   }
 
   async update(id: number, payload: UpdateProductDto) {
-    const product = await this.productsRepository.findOneBy({ id });
+    const product = await this.productsRepository.findOne({
+      where: {
+        id,
+        deletedAt: IsNull(),
+      },
+    });
 
     if (!product) {
       throw new NotFoundException(`Producto con id: ${id} no encontrado`);
@@ -103,22 +111,34 @@ export class ProductsService {
       throw new NotFoundException(`Producto con id: ${id} no encontrado`);
     }
 
-    const [inventoryUsageCount, saleUsageCount] = await Promise.all([
-      this.inventoryRepository.countBy({ productId: id }),
-      this.saleItemsRepository.countBy({ productId: id }),
-    ]);
-
-    if (inventoryUsageCount > 0 || saleUsageCount > 0) {
-      throw new ConflictException(
-        `No se puede eliminar el producto ${id} porque tiene inventario o ventas asociadas`,
-      );
+    if (product.deletedAt) {
+      return {
+        id,
+        deleted: true,
+        mode: 'soft' as const,
+        alreadyDeleted: true,
+      };
     }
 
+    const saleUsageCount = await this.saleItemsRepository.countBy({ productId: id });
+
+    if (saleUsageCount > 0) {
+      await this.productsRepository.update(id, { deletedAt: new Date() });
+
+      return {
+        id,
+        deleted: true,
+        mode: 'soft' as const,
+      };
+    }
+
+    await this.inventoryRepository.delete({ productId: id });
     await this.productsRepository.delete(id);
 
     return {
       id,
       deleted: true,
+      mode: 'hard' as const,
     };
   }
 }
