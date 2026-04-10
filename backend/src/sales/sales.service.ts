@@ -73,7 +73,11 @@ export class SalesService {
         salesMap.set(id, sale);
       }
 
-      if (row.productId === null || row.quantity === null || row.unitPrice === null) {
+      if (
+        row.productId === null ||
+        row.quantity === null ||
+        row.unitPrice === null
+      ) {
         continue;
       }
 
@@ -125,7 +129,9 @@ export class SalesService {
       const inventoryRows = await manager
         .createQueryBuilder(Inventory, 'inventory')
         .setLock('pessimistic_write')
-        .where('inventory.branch_id = :branchId', { branchId: payload.branchId })
+        .where('inventory.branch_id = :branchId', {
+          branchId: payload.branchId,
+        })
         .andWhere('inventory.product_id IN (:...productIds)', { productIds })
         .getMany();
 
@@ -149,7 +155,9 @@ export class SalesService {
         }),
       );
 
-      const productById = new Map(products.map((product) => [product.id, product]));
+      const productById = new Map(
+        products.map((product) => [product.id, product]),
+      );
 
       let total = 0;
       const saleItemsResponse: Array<{

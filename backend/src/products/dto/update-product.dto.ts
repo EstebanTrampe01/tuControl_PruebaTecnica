@@ -12,7 +12,9 @@ export class UpdateProductDto {
   @IsOptional()
   @IsString({ message: 'El nombre debe ser texto.' })
   @IsNotEmpty({ message: 'El nombre no puede estar vacío.' })
-  @MaxLength(150, { message: 'El nombre debe tener como máximo 150 caracteres.' })
+  @MaxLength(150, {
+    message: 'El nombre debe tener como máximo 150 caracteres.',
+  })
   name?: string;
 
   @IsOptional()

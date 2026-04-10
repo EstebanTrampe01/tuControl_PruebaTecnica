@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -120,7 +117,9 @@ export class ProductsService {
       };
     }
 
-    const saleUsageCount = await this.saleItemsRepository.countBy({ productId: id });
+    const saleUsageCount = await this.saleItemsRepository.countBy({
+      productId: id,
+    });
 
     if (saleUsageCount > 0) {
       await this.productsRepository.update(id, { deletedAt: new Date() });

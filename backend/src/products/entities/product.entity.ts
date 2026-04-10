@@ -16,7 +16,7 @@ export class Product {
 
   @Column({ name: 'image_url', type: 'varchar', length: 500, nullable: true })
   imageUrl: string | null;
-  
+
   @Column({ name: 'category_id', type: 'int' })
   categoryId: number;
 

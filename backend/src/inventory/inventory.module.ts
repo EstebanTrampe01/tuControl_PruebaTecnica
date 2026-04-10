@@ -10,6 +10,6 @@ import { Branch } from '../branches/entities/branch.entity';
   imports: [TypeOrmModule.forFeature([Inventory, Product, Branch])],
   controllers: [InventoryController],
   providers: [InventoryService],
-  exports: [TypeOrmModule]
+  exports: [TypeOrmModule],
 })
 export class InventoryModule {}

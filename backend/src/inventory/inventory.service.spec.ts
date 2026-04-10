@@ -83,9 +83,13 @@ describe('InventoryService', () => {
     productsRepository.findOneBy.mockResolvedValueOnce({ id: 1 });
     branchesRepository.findOneBy.mockResolvedValueOnce({ id: 1 });
     inventoryRepository.findOneBy.mockResolvedValueOnce(existingInventory);
-    inventoryRepository.save.mockImplementationOnce(async (value: unknown) => value);
+    inventoryRepository.save.mockImplementationOnce((value: unknown) => value);
 
-    const result = await service.upsert({ productId: 1, branchId: 1, stock: 20 });
+    const result = await service.upsert({
+      productId: 1,
+      branchId: 1,
+      stock: 20,
+    });
 
     expect(inventoryRepository.create).not.toHaveBeenCalled();
     expect(inventoryRepository.save).toHaveBeenCalledWith({
@@ -100,10 +104,16 @@ describe('InventoryService', () => {
     productsRepository.findOneBy.mockResolvedValueOnce({ id: 1 });
     branchesRepository.findOneBy.mockResolvedValueOnce({ id: 1 });
     inventoryRepository.findOneBy.mockResolvedValueOnce(null);
-    inventoryRepository.create.mockImplementationOnce((value: unknown) => value);
-    inventoryRepository.save.mockImplementationOnce(async (value: unknown) => value);
+    inventoryRepository.create.mockImplementationOnce(
+      (value: unknown) => value,
+    );
+    inventoryRepository.save.mockImplementationOnce((value: unknown) => value);
 
-    const result = await service.upsert({ productId: 1, branchId: 1, stock: 20 });
+    const result = await service.upsert({
+      productId: 1,
+      branchId: 1,
+      stock: 20,
+    });
 
     expect(inventoryRepository.create).toHaveBeenCalledWith({
       productId: 1,

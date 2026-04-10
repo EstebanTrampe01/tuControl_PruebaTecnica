@@ -10,7 +10,15 @@ import { BranchesModule } from './branches/branches.module';
 import { DatabaseModule } from './database/database.module';
 
 @Module({
-  imports: [CategoriesModule, BranchesModule, ProductsModule, InventoryModule, SalesModule, ReportsModule, DatabaseModule],
+  imports: [
+    CategoriesModule,
+    BranchesModule,
+    ProductsModule,
+    InventoryModule,
+    SalesModule,
+    ReportsModule,
+    DatabaseModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

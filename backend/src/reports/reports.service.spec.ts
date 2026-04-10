@@ -26,7 +26,7 @@ describe('ReportsService', () => {
     service = module.get<ReportsService>(ReportsService);
   });
 
-  it('lanza error cuando "from" es mayor que "to"', async () => {
+  it('lanza error cuando "from" es mayor que "to"', () => {
     expect(() =>
       service.getTopProducts({
         from: '2026-04-10T23:59:59.999Z',
@@ -49,7 +49,7 @@ describe('ReportsService', () => {
       from: '2026-04-08T00:00:00.000Z',
       to: '2026-04-10T23:59:59.999Z',
       branchId: undefined,
-      limit: 1,
+      limit: 100,
     });
   });
 

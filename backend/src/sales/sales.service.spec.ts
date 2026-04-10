@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { getDataSourceToken } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
-import { DataSource } from 'typeorm';
 import { SalesService } from './sales.service';
 
 describe('SalesService', () => {
@@ -68,7 +67,7 @@ describe('SalesService', () => {
     const { manager } = createManager();
     manager.findOneBy.mockResolvedValueOnce(null);
     dataSource.transaction.mockImplementationOnce(
-      async (callback: (m: typeof manager) => unknown) => callback(manager),
+      (callback: (m: typeof manager) => unknown) => callback(manager),
     );
 
     await expect(
@@ -87,7 +86,7 @@ describe('SalesService', () => {
       { productId: 1, branchId: 1, stock: 0 },
     ]);
     dataSource.transaction.mockImplementationOnce(
-      async (callback: (m: typeof manager) => unknown) => callback(manager),
+      (callback: (m: typeof manager) => unknown) => callback(manager),
     );
 
     await expect(
@@ -107,7 +106,7 @@ describe('SalesService', () => {
     queryBuilder.getMany.mockResolvedValueOnce([
       { productId: 1, branchId: 1, stock: 5 },
     ]);
-    manager.save.mockImplementation(async (entity: Record<string, unknown>) => {
+    manager.save.mockImplementation((entity: Record<string, unknown>) => {
       if ('branchId' in entity && !('saleId' in entity)) {
         return { id: 10, branchId: entity.branchId, soldAt };
       }
@@ -115,7 +114,7 @@ describe('SalesService', () => {
     });
 
     dataSource.transaction.mockImplementationOnce(
-      async (callback: (m: typeof manager) => unknown) => callback(manager),
+      (callback: (m: typeof manager) => unknown) => callback(manager),
     );
 
     const result = await service.create({
@@ -138,10 +137,13 @@ describe('SalesService', () => {
       ],
     });
     expect(manager.save).toHaveBeenCalledTimes(3);
-    expect((manager.save as jest.Mock).mock.calls[2][0]).toMatchObject({
-      productId: 1,
-      branchId: 1,
-      stock: 3,
-    });
+    expect(manager.save).toHaveBeenNthCalledWith(
+      3,
+      expect.objectContaining({
+        productId: 1,
+        branchId: 1,
+        stock: 3,
+      }),
+    );
   });
 });

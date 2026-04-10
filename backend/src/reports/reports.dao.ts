@@ -8,11 +8,20 @@ type TopProductsParams = {
   limit?: number;
 };
 
+type TopProductRow = {
+  branchId: number;
+  branchName: string;
+  productId: number;
+  productName: string;
+  quantitySold: number;
+  totalSold: string;
+};
+
 @Injectable()
 export class ReportsDao {
   constructor(private readonly dataSource: DataSource) {}
 
-  async getTopProducts(params: TopProductsParams) {
+  async getTopProducts(params: TopProductsParams): Promise<TopProductRow[]> {
     const values: Array<string | number> = [params.from, params.to];
     let whereBranch = '';
 
@@ -44,6 +53,23 @@ export class ReportsDao {
       LIMIT ${limitPlaceholder};
     `;
 
-    return this.dataSource.query(query, values);
+    const rowsUnknown: unknown = await this.dataSource.query(query, values);
+
+    if (!Array.isArray(rowsUnknown)) {
+      return [];
+    }
+
+    return rowsUnknown.map((row) => {
+      const record = row as Record<string, unknown>;
+
+      return {
+        branchId: Number(record.branchId),
+        branchName: String(record.branchName),
+        productId: Number(record.productId),
+        productName: String(record.productName),
+        quantitySold: Number(record.quantitySold),
+        totalSold: String(record.totalSold),
+      };
+    });
   }
 }

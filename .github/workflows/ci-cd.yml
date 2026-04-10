@@ -95,7 +95,7 @@ jobs:
 
       - name: Backend test
         working-directory: backend
-        run: pnpm test -- --runInBand
+        run: pnpm test --runInBand
 
   deploy:
     name: Deploy Cloud Run

@@ -12,5 +12,4 @@ import { getTypeOrmConfig } from './typeorm.config';
   providers: [DatabaseService],
   exports: [TypeOrmModule, DatabaseService],
 })
-
 export class DatabaseModule {}

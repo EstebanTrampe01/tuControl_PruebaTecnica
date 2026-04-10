@@ -8,11 +8,12 @@ import { Product } from '../products/entities/product.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Branch } from '../branches/entities/branch.entity';
 
-
 @Module({
-  imports: [TypeOrmModule.forFeature([Sale, SaleItem, Inventory, Product, Branch])],
+  imports: [
+    TypeOrmModule.forFeature([Sale, SaleItem, Inventory, Product, Branch]),
+  ],
   controllers: [SalesController],
   providers: [SalesService],
-  exports: [TypeOrmModule]
+  exports: [TypeOrmModule],
 })
 export class SalesModule {}

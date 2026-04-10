@@ -66,10 +66,17 @@ describe('ProductsService', () => {
 
     await service.findAll();
 
-    expect(productsRepository.find).toHaveBeenCalledWith({
-      where: { deletedAt: expect.any(Object) },
-      order: { id: 'ASC' },
-    });
+    const [findOptionsUnknown] = productsRepository.find.mock.calls[0] as [
+      unknown,
+    ];
+    const findOptions = findOptionsUnknown as {
+      where: { deletedAt?: unknown; categoryId?: number };
+      order: { id: 'ASC' };
+    };
+
+    expect(findOptions.order).toEqual({ id: 'ASC' });
+    expect(findOptions.where.deletedAt).toBeDefined();
+    expect(findOptions.where.categoryId).toBeUndefined();
   });
 
   it('devuelve productos filtrados por su categoria', async () => {
@@ -77,10 +84,17 @@ describe('ProductsService', () => {
 
     await service.findAll(2);
 
-    expect(productsRepository.find).toHaveBeenCalledWith({
-      where: { categoryId: 2, deletedAt: expect.any(Object) },
-      order: { id: 'ASC' },
-    });
+    const [findOptionsUnknown] = productsRepository.find.mock.calls[0] as [
+      unknown,
+    ];
+    const findOptions = findOptionsUnknown as {
+      where: { deletedAt?: unknown; categoryId?: number };
+      order: { id: 'ASC' };
+    };
+
+    expect(findOptions.order).toEqual({ id: 'ASC' });
+    expect(findOptions.where.deletedAt).toBeDefined();
+    expect(findOptions.where.categoryId).toBe(2);
   });
 
   it('lanza error cuando la categoria no existe', async () => {
@@ -102,7 +116,7 @@ describe('ProductsService', () => {
   it('crea un producto con campos normalizados', async () => {
     categoriesRepository.findOneBy.mockResolvedValueOnce({ id: 2 });
     productsRepository.create.mockImplementationOnce((value: unknown) => value);
-    productsRepository.save.mockImplementationOnce(async (value: unknown) => value);
+    productsRepository.save.mockImplementationOnce((value: unknown) => value);
 
     const result = await service.create({
       name: 'Mouse Gamer X1',
@@ -136,7 +150,7 @@ describe('ProductsService', () => {
       categoryId: 2,
     });
     categoriesRepository.findOneBy.mockResolvedValueOnce({ id: 3 });
-    productsRepository.save.mockImplementationOnce(async (value: unknown) => value);
+    productsRepository.save.mockImplementationOnce((value: unknown) => value);
 
     const result = await service.update(1, {
       name: 'Mouse Gamer X2',
@@ -179,22 +193,36 @@ describe('ProductsService', () => {
   });
 
   it('elimina un producto sin referencias', async () => {
-    productsRepository.findOneBy.mockResolvedValueOnce({ id: 1, deletedAt: null });
+    productsRepository.findOneBy.mockResolvedValueOnce({
+      id: 1,
+      deletedAt: null,
+    });
     saleItemsRepository.countBy.mockResolvedValueOnce(0);
     productsRepository.delete.mockResolvedValueOnce({ affected: 1 });
     inventoryRepository.delete.mockResolvedValueOnce({ affected: 0 });
 
-    await expect(service.remove(1)).resolves.toEqual({ id: 1, deleted: true, mode: 'hard' });
+    await expect(service.remove(1)).resolves.toEqual({
+      id: 1,
+      deleted: true,
+      mode: 'hard',
+    });
     expect(inventoryRepository.delete).toHaveBeenCalledWith({ productId: 1 });
     expect(productsRepository.delete).toHaveBeenCalledWith(1);
   });
 
   it('aplica soft delete cuando tiene ventas asociadas', async () => {
-    productsRepository.findOneBy.mockResolvedValueOnce({ id: 1, deletedAt: null });
+    productsRepository.findOneBy.mockResolvedValueOnce({
+      id: 1,
+      deletedAt: null,
+    });
     saleItemsRepository.countBy.mockResolvedValueOnce(2);
     productsRepository.update.mockResolvedValueOnce({ affected: 1 });
 
-    await expect(service.remove(1)).resolves.toEqual({ id: 1, deleted: true, mode: 'soft' });
+    await expect(service.remove(1)).resolves.toEqual({
+      id: 1,
+      deleted: true,
+      mode: 'soft',
+    });
     expect(productsRepository.update).toHaveBeenCalled();
     expect(productsRepository.delete).not.toHaveBeenCalled();
   });
