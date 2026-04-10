@@ -1,0 +1,154 @@
+name: CI-CD
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_REGION: ${{ secrets.GCP_REGION }}
+  GAR_REPOSITORY: ${{ secrets.GAR_REPOSITORY }}
+  BACKEND_SERVICE_NAME: ${{ vars.BACKEND_SERVICE_NAME }}
+  FRONTEND_SERVICE_NAME: ${{ vars.FRONTEND_SERVICE_NAME }}
+  CLOUDSQL_CONNECTION_NAME: ${{ secrets.CLOUDSQL_CONNECTION_NAME }}
+
+jobs:
+  quality:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node + pnpm
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: |
+            backend/pnpm-lock.yaml
+            frontend/pnpm-lock.yaml
+
+      - name: Enable corepack
+        run: corepack enable
+
+      # Backend
+      - name: Backend install
+        working-directory: backend
+        run: pnpm install --frozen-lockfile
+
+      - name: Backend lint
+        working-directory: backend
+        run: pnpm lint
+
+      - name: Backend test
+        working-directory: backend
+        run: pnpm test -- --runInBand
+
+      - name: Backend build
+        working-directory: backend
+        run: pnpm build
+
+      # Frontend
+      - name: Frontend install
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Frontend lint
+        working-directory: frontend
+        run: pnpm lint
+
+      - name: Frontend build
+        working-directory: frontend
+        run: pnpm build
+
+  deploy:
+    name: Deploy Cloud Run
+    runs-on: ubuntu-latest
+    needs: quality
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud (OIDC)
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      - name: Configure Docker auth for Artifact Registry
+        run: gcloud auth configure-docker "${GCP_REGION}-docker.pkg.dev" --quiet
+
+      - name: Build & Push backend image
+        run: |
+          BACKEND_IMAGE="${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${GAR_REPOSITORY}/backend:${GITHUB_SHA}"
+
+          docker build -f backend/Dockerfile.prod -t "${BACKEND_IMAGE}" ./backend
+          docker push "${BACKEND_IMAGE}"
+
+          echo "BACKEND_IMAGE=${BACKEND_IMAGE}" >> "$GITHUB_ENV"
+
+      - name: Deploy backend to Cloud Run
+        run: |
+          BACKEND_RUNTIME_SA="cr-backend-runtime@${GCP_PROJECT_ID}.iam.gserviceaccount.com"
+          BACKEND_ENV_VARS="PORT=8080,DB_HOST=/cloudsql/${CLOUDSQL_CONNECTION_NAME},DB_PORT=5432,DB_USER=${{ vars.DB_USER }},DB_NAME=${{ vars.DB_NAME }},FRONTEND_ORIGIN=${{ vars.FRONTEND_ORIGIN }}"
+
+          gcloud run deploy "${BACKEND_SERVICE_NAME}" \
+            --image "${BACKEND_IMAGE}" \
+            --region "${GCP_REGION}" \
+            --platform managed \
+            --service-account "${BACKEND_RUNTIME_SA}" \
+            --allow-unauthenticated \
+            --add-cloudsql-instances "${CLOUDSQL_CONNECTION_NAME}" \
+            --set-env-vars "${BACKEND_ENV_VARS}" \
+            --set-secrets "DB_PASSWORD=DB_PASSWORD:latest"
+
+      - name: Get backend URL
+        run: |
+          BACKEND_URL=$(gcloud run services describe "${BACKEND_SERVICE_NAME}" --region "${GCP_REGION}" --format='value(status.url)')
+
+          echo "BACKEND_URL=${BACKEND_URL}" >> "$GITHUB_ENV"
+
+      - name: Build & Push frontend image
+        run: |
+          FRONTEND_IMAGE="${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${GAR_REPOSITORY}/frontend:${GITHUB_SHA}"
+
+          docker build -f frontend/Dockerfile.prod -t "${FRONTEND_IMAGE}" ./frontend
+          docker push "${FRONTEND_IMAGE}"
+
+          echo "FRONTEND_IMAGE=${FRONTEND_IMAGE}" >> "$GITHUB_ENV"
+
+      - name: Deploy frontend to Cloud Run
+        run: |
+          FRONTEND_ENV_VARS="PORT=8080,NEXT_PUBLIC_API_URL=${BACKEND_URL},API_URL=${BACKEND_URL},API_URL_INTERNAL=${BACKEND_URL}"
+
+          gcloud run deploy "${FRONTEND_SERVICE_NAME}" \
+            --image "${FRONTEND_IMAGE}" \
+            --region "${GCP_REGION}" \
+            --platform managed \
+            --allow-unauthenticated \
+            --set-env-vars "${FRONTEND_ENV_VARS}"
+
+      - name: Smoke test backend
+        run: |
+          curl -fsSL "${BACKEND_URL}" > /dev/null
+
+      - name: Smoke test frontend
+        run: |
+          FRONTEND_URL=$(gcloud run services describe "${FRONTEND_SERVICE_NAME}" --region "${GCP_REGION}" --format='value(status.url)')
+
+          curl -fsSL "${FRONTEND_URL}" > /dev/null
