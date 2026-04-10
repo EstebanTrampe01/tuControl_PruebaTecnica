@@ -70,7 +70,7 @@ jobs:
         run: docker build -f backend/Dockerfile.prod -t backend:ci-check ./backend
 
       - name: Docker build frontend image validation
-        run: docker build -f frontend/Dockerfile.prod -t frontend:ci-check ./frontend
+        run: docker build -f frontend/Dockerfile.prod --build-arg NEXT_PUBLIC_API_URL="https://example.com" -t frontend:ci-check ./frontend
 
   test:
     name: Test
@@ -162,7 +162,11 @@ jobs:
         run: |
           FRONTEND_IMAGE="${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${GAR_REPOSITORY}/frontend:${GITHUB_SHA}"
 
-          docker build -f frontend/Dockerfile.prod -t "${FRONTEND_IMAGE}" ./frontend
+          docker build \
+            -f frontend/Dockerfile.prod \
+            --build-arg NEXT_PUBLIC_API_URL="${BACKEND_URL}" \
+            -t "${FRONTEND_IMAGE}" \
+            ./frontend
           docker push "${FRONTEND_IMAGE}"
 
           echo "FRONTEND_IMAGE=${FRONTEND_IMAGE}" >> "$GITHUB_ENV"
