@@ -2,8 +2,8 @@
 
 import { Badge } from '@/components/atoms/Badge';
 import { Button } from '@/components/atoms/Button';
-import { Input } from '@/components/ui/input';
 import { formatCurrency } from '@/lib/utils';
+import { NumberStepper } from '@/components/molecules/NumberStepper';
 
 interface SaleItemProps {
   productId: number;
@@ -60,14 +60,14 @@ export function SaleItem({
           <label htmlFor={`qty-${productId}`} className="text-xs text-muted-foreground">
             Cantidad
           </label>
-          <Input
+          <NumberStepper
             id={`qty-${productId}`}
-            type="number"
-            min="1"
-            step="1"
+            min={1}
+            step={1}
             value={quantity}
-            onChange={(event) => onQuantityChange(Number.parseInt(event.target.value, 10) || 1)}
-            className="h-8 w-24"
+            onChange={(value) => onQuantityChange(Number.parseInt(value, 10) || 1)}
+            className="w-auto"
+            inputClassName="w-16"
             disabled={disabled}
           />
         </div>

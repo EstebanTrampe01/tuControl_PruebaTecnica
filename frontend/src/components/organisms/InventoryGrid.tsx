@@ -14,6 +14,7 @@ import {
 
 interface InventoryGridProps {
   rows: InventoryMatrixRow[];
+  emptyMessage?: string;
   onEditCell: (params: {
     productId: number;
     productName: string;
@@ -23,11 +24,15 @@ interface InventoryGridProps {
   }) => void;
 }
 
-export function InventoryGrid({ rows, onEditCell }: InventoryGridProps) {
+export function InventoryGrid({
+  rows,
+  onEditCell,
+  emptyMessage = 'No hay productos para mostrar inventario.',
+}: InventoryGridProps) {
   if (rows.length === 0) {
     return (
       <div className="py-12 text-center text-sm text-muted-foreground">
-        No hay productos para mostrar inventario.
+        {emptyMessage}
       </div>
     );
   }

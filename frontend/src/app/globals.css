@@ -53,6 +53,14 @@ body {
     radial-gradient(circle at 85% -20%, color-mix(in oklab, #F97316 12%, transparent) 0%, transparent 40%);
 }
 
+@supports (view-transition-name: root) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+}
+
 @layer components {
   .section-kicker {
     @apply inline-flex items-center gap-2 rounded-full border border-amber-300/60 bg-amber-50/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-700;
@@ -75,27 +83,27 @@ body {
   }
 
   .sidebar-item {
-    @apply flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900;
+    @apply flex items-center gap-3 rounded-lg px-3.5 py-2 text-sm text-orange-950 transition-colors hover:bg-orange-100/85 hover:text-orange-950;
   }
 
   .sidebar-item-active {
-    @apply bg-slate-100 text-slate-900;
+    @apply bg-white/95 text-orange-800 ring-1 ring-white/90 shadow-sm;
   }
 
   .dark .sidebar-item {
-    @apply text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100;
+    @apply text-orange-200/85 hover:bg-zinc-800/80 hover:text-orange-100;
   }
 
   .dark .sidebar-item-active {
-    @apply bg-zinc-800 text-zinc-100;
+    @apply bg-zinc-100/95 text-orange-900 ring-1 ring-zinc-100/80;
   }
 
   .sidebar-section-label {
-    @apply px-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400;
+    @apply px-3.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-orange-800/80;
   }
 
   .dark .sidebar-section-label {
-    @apply text-zinc-500;
+    @apply text-orange-300/70;
   }
 
   .operational-table-head-row {
@@ -104,6 +112,30 @@ body {
 
   .operational-table-head-cell {
     @apply !text-slate-100 text-[11px] uppercase tracking-[0.12em];
+  }
+
+  .glass-nav {
+    @apply border-white/40 bg-white/65 supports-backdrop-filter:backdrop-blur-md;
+  }
+
+  .dark .glass-nav {
+    @apply border-zinc-700/70 bg-zinc-900/60 supports-backdrop-filter:backdrop-blur-md;
+  }
+
+  .glass-soft {
+    @apply border-white/45 bg-white/58 supports-backdrop-filter:backdrop-blur-md;
+  }
+
+  .dark .glass-soft {
+    @apply border-zinc-700/60 bg-zinc-900/52 supports-backdrop-filter:backdrop-blur-md;
+  }
+
+  .glass-kpi {
+    @apply border-white/50 bg-white/62 supports-backdrop-filter:backdrop-blur-md shadow-[0_8px_24px_rgba(120,53,15,0.08)];
+  }
+
+  .dark .glass-kpi {
+    @apply border-zinc-700/70 bg-zinc-900/56 supports-backdrop-filter:backdrop-blur-md shadow-[0_10px_26px_rgba(0,0,0,0.35)];
   }
 }
 
