@@ -20,7 +20,8 @@ CREATE TABLE products (
   description TEXT,
   price       NUMERIC(10,2) NOT NULL CHECK (price >= 0),
   image_url   VARCHAR(500),
-  category_id INT           NOT NULL REFERENCES categories(id)
+  category_id INT           NOT NULL REFERENCES categories(id),
+  deleted_at  TIMESTAMPTZ   DEFAULT NULL
 );
 
 CREATE TABLE inventory (
@@ -48,6 +49,7 @@ CREATE TABLE sale_items (
 -- ÍNDICES
 
 CREATE INDEX idx_products_category   ON products(category_id);
+CREATE INDEX idx_products_active     ON products(id) WHERE deleted_at IS NULL;
 CREATE INDEX idx_inventory_branch    ON inventory(branch_id);
 CREATE INDEX idx_sales_branch_date   ON sales(branch_id, sold_at);
 CREATE INDEX idx_sale_items_sale     ON sale_items(sale_id);
