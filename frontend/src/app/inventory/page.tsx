@@ -16,12 +16,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { BRANCHES } from '@/constants';
+import { PageLead } from '@/components/molecules/PageLead';
 import { inventoryService } from '@/services/inventory.service';
 import { productsService } from '@/services/products.service';
 import { ApiError } from '@/services/api';
 import { InventoryItem, InventoryMatrixRow } from '@/types/inventory.type';
 import { Product } from '@/types/product.type';
 import { toast } from 'sonner';
+import { LedgerPanel } from '@/components/templates/LedgerPanel';
 
 type EditingCell = {
   productId: number;
@@ -152,14 +154,13 @@ export default function InventoryPage() {
 
   return (
     <PageTransition>
-      <div className="mb-6 flex flex-col gap-2">
-        <h1 className="text-2xl font-bold text-foreground">Inventario por sucursal</h1>
-        <p className="text-sm text-muted-foreground">
-          Ajusta existencias por producto y sucursal sin recargar la página.
-        </p>
-      </div>
+      <PageLead
+        kicker="Stock Matrix"
+        title="Inventario por sucursal"
+        description="Ajusta existencias por producto con señales de riesgo operativo por cada sucursal."
+      />
 
-      <div className="rounded-2xl border border-border bg-card p-4 shadow-sm dark:border-[#1E3A5F] dark:bg-[#162032]">
+      <LedgerPanel>
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Spinner className="h-8 w-8 text-primary" />
@@ -174,7 +175,7 @@ export default function InventoryPage() {
         ) : (
           <InventoryGrid rows={rows} onEditCell={handleEditCell} />
         )}
-      </div>
+      </LedgerPanel>
 
       <Dialog open={Boolean(editingCell)} onOpenChange={(open) => !open && handleCloseDialog()}>
         <DialogContent className="sm:max-w-md">

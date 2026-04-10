@@ -6,6 +6,7 @@ import { Spinner } from '@/components/atoms/Spinner';
 import { Button } from '@/components/atoms/Button';
 import { SaleForm } from '@/components/organisms/SaleForm';
 import { SaleList } from '@/components/organisms/SaleList';
+import { PageLead } from '@/components/molecules/PageLead';
 import { productsService } from '@/services/products.service';
 import { inventoryService } from '@/services/inventory.service';
 import { salesService } from '@/services/sales.service';
@@ -14,6 +15,7 @@ import { InventoryItem } from '@/types/inventory.type';
 import { Product } from '@/types/product.type';
 import { Sale, SaleCartItem } from '@/types/sale.type';
 import { toast } from 'sonner';
+import { LedgerPanel } from '@/components/templates/LedgerPanel';
 
 const getInventoryKey = (productId: number, branchId: number) => `${productId}-${branchId}`;
 
@@ -177,24 +179,23 @@ export default function SalesPage() {
 
   return (
     <PageTransition>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">Ventas</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Registra ventas y valida disponibilidad por sucursal en tiempo real.
-        </p>
-      </div>
+      <PageLead
+        kicker="Sales Desk"
+        title="Registro de ventas"
+        description="Confirma ventas con validación previa de stock y trazabilidad de cada operación."
+      />
 
       {isLoading ? (
-        <div className="flex items-center justify-center rounded-2xl border border-border bg-card py-14 shadow-sm dark:border-[#1E3A5F] dark:bg-[#162032]">
+        <LedgerPanel className="flex items-center justify-center py-14">
           <Spinner className="h-8 w-8 text-primary" />
-        </div>
+        </LedgerPanel>
       ) : loadError ? (
-        <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-card py-14 text-center shadow-sm dark:border-[#1E3A5F] dark:bg-[#162032]">
+        <LedgerPanel className="flex flex-col items-center justify-center gap-4 py-14 text-center">
           <p className="text-sm text-destructive">{loadError}</p>
           <Button variant="outline" onClick={() => void loadSalesData()}>
             Reintentar
           </Button>
-        </div>
+        </LedgerPanel>
       ) : (
         <div className="space-y-6">
           <SaleForm
@@ -213,7 +214,7 @@ export default function SalesPage() {
           />
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-foreground">Ventas registradas</h2>
+            <h2 className="mb-3 text-lg font-semibold tracking-tight text-foreground">Ventas registradas</h2>
             <SaleList sales={sales} productNamesById={productNamesById} />
           </section>
         </div>

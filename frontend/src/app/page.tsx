@@ -1,5 +1,4 @@
 import { PageTransition } from '@/components/atoms/PageTransition';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -16,6 +15,8 @@ import { salesService } from '@/services/sales.service';
 import { Sale } from '@/types/sale.type';
 import { TopProductReportItem } from '@/types/report.type';
 import Link from 'next/link';
+import { PageLead } from '@/components/molecules/PageLead';
+import { LedgerPanel } from '@/components/templates/LedgerPanel';
 
 export const dynamic = 'force-dynamic';
 
@@ -92,103 +93,77 @@ export default async function Home() {
 
   return (
     <PageTransition>
-      <section className="grid gap-6 md:grid-cols-3">
-        {/* Card 1 */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total productos en catálogo
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{totalProducts}</p>
-          </CardContent>
-        </Card>
+      <PageLead
+        kicker="Operational Ledger"
+        title="Dashboard de control"
+        description="Visibilidad operativa en tiempo real para catálogo, ventas e inventario crítico."
+      />
 
-        {/* Card 2 */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Ventas registradas hoy
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-success">
-              {formatCurrency(todaySalesTotal)}
-            </p>
-          </CardContent>
-        </Card>
+      <section className="grid gap-4 md:grid-cols-3">
+        <LedgerPanel>
+          <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Total catálogo</p>
+          <p className="mt-2 text-3xl font-semibold tracking-tight text-foreground">{totalProducts}</p>
+        </LedgerPanel>
 
-        {/* Card 3 */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Productos con stock crítico
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-danger">
-              {uniqueCriticalProducts}
-            </p>
-          </CardContent>
-        </Card>
+        <LedgerPanel>
+          <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Ventas de hoy</p>
+          <p className="mt-2 text-3xl font-semibold tracking-tight text-success">{formatCurrency(todaySalesTotal)}</p>
+        </LedgerPanel>
 
-        {/* Table Top 5 */}
-        <Card className="md:col-span-3">
-          <CardHeader>
-            <CardTitle>Top 5 más vendidos (Semana actual)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {topProducts.length === 0 ? (
-              <p className="py-4 text-sm text-muted-foreground">
-                No hay ventas registradas esta semana.
-              </p>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Producto</TableHead>
-                    <TableHead>Sucursal</TableHead>
-                    <TableHead className="text-right">Cant. Vendida</TableHead>
-                    <TableHead className="text-right">Ingreso</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {topProducts.map((p) => (
-                    <TableRow key={`${p.productId}-${p.branchId}`}>
-                      <TableCell className="font-medium">
-                        {p.productName}
-                      </TableCell>
-                      <TableCell>{p.branchName}</TableCell>
-                      <TableCell className="text-right">
-                        {p.quantitySold}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(Number(p.totalSold))}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-
-            <div className="mt-6 flex gap-4">
-              <Link
-                href="/products"
-                className="text-sm text-primary hover:underline"
-              >
-                Ir a Catálogo →
-              </Link>
-              <Link
-                href="/sales"
-                className="text-sm text-primary hover:underline"
-              >
-                Ir a Ventas →
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+        <LedgerPanel>
+          <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Stock crítico</p>
+          <p className="mt-2 text-3xl font-semibold tracking-tight text-danger">{uniqueCriticalProducts}</p>
+        </LedgerPanel>
       </section>
+
+      <LedgerPanel className="mt-4">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">Top 5 más vendidos</h2>
+          <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Semana actual</p>
+        </div>
+
+        {topProducts.length === 0 ? (
+          <p className="rounded-xl border border-dashed border-border/80 p-4 text-sm text-muted-foreground">
+            No hay ventas registradas esta semana.
+          </p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow className="operational-table-head-row">
+                <TableHead className="operational-table-head-cell">Producto</TableHead>
+                <TableHead className="operational-table-head-cell">Sucursal</TableHead>
+                <TableHead className="operational-table-head-cell text-right">Cant. Vendida</TableHead>
+                <TableHead className="operational-table-head-cell text-right">Ingreso</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {topProducts.map((p) => (
+                <TableRow key={`${p.productId}-${p.branchId}`}>
+                  <TableCell className="font-medium">{p.productName}</TableCell>
+                  <TableCell>{p.branchName}</TableCell>
+                  <TableCell className="text-right">{p.quantitySold}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(Number(p.totalSold))}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <Link
+            href="/products"
+            className="rounded-lg border border-primary-200 bg-primary-50 px-3 py-2 text-sm font-medium text-primary-700 transition-colors hover:bg-primary-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
+          >
+            Ir a Catálogo
+          </Link>
+          <Link
+            href="/sales"
+            className="rounded-lg border border-primary-200 bg-primary-50 px-3 py-2 text-sm font-medium text-primary-700 transition-colors hover:bg-primary-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
+          >
+            Ir a Ventas
+          </Link>
+        </div>
+      </LedgerPanel>
     </PageTransition>
   );
 }

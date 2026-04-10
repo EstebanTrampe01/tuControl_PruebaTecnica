@@ -70,7 +70,7 @@ export function SaleForm({
     isSubmitting || selectedBranchId === '' || cart.length === 0 || hasInsufficientStock;
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm dark:border-[#1E3A5F] dark:bg-[#162032]">
+    <div className="ledger-panel">
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="sale-branch">Sucursal</Label>
@@ -100,8 +100,8 @@ export function SaleForm({
         </div>
       </div>
 
-      <div className="mt-4 rounded-xl border border-border bg-muted/20 p-3">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+      <div className="mt-4 rounded-xl border border-border/80 bg-muted/20 p-3">
+        <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
           Resultados
         </p>
 
@@ -113,7 +113,7 @@ export function SaleForm({
               <button
                 key={product.id}
                 type="button"
-                className="rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700 transition-colors hover:bg-primary-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#1E3A5F] dark:bg-secondary dark:text-secondary-foreground"
+                className="rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700 transition-colors hover:bg-primary-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                 onClick={() => onAddProduct(product.id)}
                 disabled={isSubmitting}
               >
@@ -168,7 +168,12 @@ export function SaleForm({
       )}
 
       <div className="mt-5 flex justify-end">
-        <Button onClick={onSubmit} isLoading={isSubmitting} disabled={isSubmitDisabled}>
+        <Button
+          onClick={onSubmit}
+          isLoading={isSubmitting}
+          disabled={isSubmitDisabled}
+          className="bg-amber-500 text-white hover:bg-amber-600"
+        >
           Confirmar venta
         </Button>
       </div>

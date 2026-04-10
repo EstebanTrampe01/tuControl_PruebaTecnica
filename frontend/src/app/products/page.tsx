@@ -7,6 +7,7 @@ import { Spinner } from '@/components/atoms/Spinner';
 import { ProductTable } from '@/components/organisms/ProductTable';
 import { ProductForm } from '@/components/organisms/ProductForm';
 import { ConfirmDialog } from '@/components/molecules/ConfirmDialog';
+import { PageLead } from '@/components/molecules/PageLead';
 import {
   Dialog,
   DialogContent,
@@ -18,6 +19,7 @@ import { ApiError } from '@/services/api';
 import { Product, CreateProductDto } from '@/types/product.type';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
+import { LedgerPanel } from '@/components/templates/LedgerPanel';
 
 export default function ProductsPage() {
   // ─── Estado local ─────────────────────────────────────
@@ -136,22 +138,17 @@ export default function ProductsPage() {
 
   return (
     <PageTransition>
-      {/* Header */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Catálogo de Productos</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Gestiona los productos de NovaTech Store
-          </p>
-        </div>
-        <Button onClick={handleOpenCreate}>
+      <PageLead
+        kicker="Catalog Control"
+        title="Catálogo de productos"
+        description="Administra altas, ajustes y bajas del catálogo compartido de NovaTech Store."
+        actions={<Button onClick={handleOpenCreate} className="bg-amber-500 text-white hover:bg-amber-600">
           <Plus className="mr-1.5 h-4 w-4" />
           Nuevo Producto
-        </Button>
-      </div>
+        </Button>}
+      />
 
-      {/* Contenido principal */}
-      <div className="rounded-2xl border border-border bg-card p-4 shadow-sm dark:bg-[#162032] dark:border-[#1E3A5F]">
+      <LedgerPanel>
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Spinner className="h-8 w-8 text-primary" />
@@ -173,7 +170,7 @@ export default function ProductsPage() {
             onDelete={handleOpenDelete}
           />
         )}
-      </div>
+      </LedgerPanel>
 
       {/* Modal Crear / Editar */}
       <Dialog open={formOpen} onOpenChange={(nextOpen) => !nextOpen && handleCloseForm()}>

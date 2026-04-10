@@ -12,7 +12,7 @@ interface SaleListProps {
 export function SaleList({ sales, productNamesById }: SaleListProps) {
   if (sales.length === 0) {
     return (
-      <div className="rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground shadow-sm dark:border-[#1E3A5F] dark:bg-[#162032]">
+      <div className="ledger-panel p-6 text-sm text-muted-foreground">
         No hay ventas registradas todavía.
       </div>
     );
@@ -26,11 +26,11 @@ export function SaleList({ sales, productNamesById }: SaleListProps) {
         return (
           <article
             key={sale.id}
-            className="rounded-2xl border border-border bg-card p-4 shadow-sm dark:border-[#1E3A5F] dark:bg-[#162032]"
+            className="ledger-panel"
           >
             <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-semibold text-foreground">Venta #{sale.id}</p>
+                <p className="text-sm font-semibold tracking-tight text-foreground">Venta #{sale.id}</p>
                 <p className="text-xs text-muted-foreground">
                   {branchName} · {formatDate(sale.soldAt)}
                 </p>
