@@ -134,7 +134,7 @@ jobs:
       - name: Deploy backend to Cloud Run
         run: |
           BACKEND_RUNTIME_SA="cr-backend-runtime@${GCP_PROJECT_ID}.iam.gserviceaccount.com"
-          BACKEND_ENV_VARS="PORT=8080,DB_HOST=/cloudsql/${CLOUDSQL_CONNECTION_NAME},DB_PORT=5432,DB_USER=${{ vars.DB_USER }},DB_NAME=${{ vars.DB_NAME }},FRONTEND_ORIGIN=${{ vars.FRONTEND_ORIGIN }}"
+          BACKEND_ENV_VARS="^@^PORT=8080@DB_HOST=/cloudsql/${CLOUDSQL_CONNECTION_NAME}@DB_PORT=5432@DB_USER=${{ vars.DB_USER }}@DB_NAME=${{ vars.DB_NAME }}@FRONTEND_ORIGIN=${{ vars.FRONTEND_ORIGIN }}"
 
           gcloud run deploy "${BACKEND_SERVICE_NAME}" \
             --image "${BACKEND_IMAGE}" \
