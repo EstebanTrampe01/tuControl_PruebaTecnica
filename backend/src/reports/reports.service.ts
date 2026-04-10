@@ -16,7 +16,7 @@ export class ReportsService {
       );
     }
 
-    const DEFAULT_LIMIT = 1;
+    const DEFAULT_LIMIT = 100;
     const MAX_LIMIT = 100;
     const normalizedLimit = Math.min(query.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
 
