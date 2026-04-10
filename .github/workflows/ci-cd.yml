@@ -66,6 +66,12 @@ jobs:
         working-directory: frontend
         run: pnpm build
 
+      - name: Docker build backend image validation
+        run: docker build -f backend/Dockerfile.prod -t backend:ci-check ./backend
+
+      - name: Docker build frontend image validation
+        run: docker build -f frontend/Dockerfile.prod -t frontend:ci-check ./frontend
+
   test:
     name: Test
     runs-on: ubuntu-latest
