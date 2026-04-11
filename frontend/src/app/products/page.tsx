@@ -217,7 +217,7 @@ export default function ProductsPage() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="h-10">
+              <Button variant="outline" className="h-10 w-full md:w-auto">
                 <SlidersHorizontal className="mr-2 h-4 w-4" />
                 Filtros
               </Button>
