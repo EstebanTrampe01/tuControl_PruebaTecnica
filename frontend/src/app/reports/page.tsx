@@ -47,7 +47,14 @@ export default function ReportsPage() {
     return [...results].sort((a, b) => {
       const branchSort = a.branchName.localeCompare(b.branchName, 'es');
       if (branchSort !== 0) return branchSort;
-      return b.quantitySold - a.quantitySold;
+
+      const quantitySort = b.quantitySold - a.quantitySold;
+      if (quantitySort !== 0) return quantitySort;
+
+      const totalSort = Number(b.totalSold) - Number(a.totalSold);
+      if (totalSort !== 0) return totalSort;
+
+      return a.productId - b.productId;
     });
   }, [results]);
 

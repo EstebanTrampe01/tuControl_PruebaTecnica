@@ -19,7 +19,8 @@ interface ReportsTableProps {
 export function ReportsTable({ items, maxHeightClassName = 'max-h-[440px]' }: ReportsTableProps) {
   return (
     <div className={`overflow-y-auto ${maxHeightClassName}`}>
-      <Table className="[&_tbody_tr]:border-b-slate-100 [&_tbody_tr:hover]:bg-primary-50/60 dark:[&_tbody_tr]:border-zinc-800 dark:[&_tbody_tr:hover]:bg-zinc-800/60 [&_tr:last-child]:border-0">
+      <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+        <Table className="min-w-[640px] [&_tbody_tr]:border-b-slate-100 [&_tbody_tr:hover]:bg-primary-50/60 dark:[&_tbody_tr]:border-zinc-800 dark:[&_tbody_tr:hover]:bg-zinc-800/60 [&_tr:last-child]:border-0">
         <TableHeader>
           <TableRow className="operational-table-head-row">
             <TableHead className="operational-table-head-cell sticky top-0 z-10">Sucursal</TableHead>
@@ -33,7 +34,7 @@ export function ReportsTable({ items, maxHeightClassName = 'max-h-[440px]' }: Re
           {items.map((item, index) => (
             <TableRow key={`${item.branchId}-${item.productId}-${index}`}>
               <TableCell className="font-medium text-foreground">{item.branchName}</TableCell>
-              <TableCell>{item.productName}</TableCell>
+              <TableCell className="max-w-[240px] truncate">{item.productName}</TableCell>
               <TableCell className="text-right">{item.quantitySold}</TableCell>
               <TableCell className="text-right font-medium text-foreground">
                 {formatCurrency(Number(item.totalSold))}
@@ -42,6 +43,7 @@ export function ReportsTable({ items, maxHeightClassName = 'max-h-[440px]' }: Re
           ))}
         </TableBody>
       </Table>
+      </div>
     </div>
   );
 }

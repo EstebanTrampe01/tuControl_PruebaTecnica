@@ -49,7 +49,7 @@ export class ReportsDao {
         AND s.sold_at < ($2::date + INTERVAL '1 day')
       ${whereBranch}
       GROUP BY b.id, b.name, p.id, p.name
-      ORDER BY b.name ASC, "quantitySold" DESC, "totalSold" DESC
+      ORDER BY b.name ASC, "quantitySold" DESC, "totalSold" DESC, p.id ASC
       LIMIT ${limitPlaceholder};
     `;
 

@@ -122,8 +122,8 @@ export function ProductForm({ initialData, onSubmit, isLoading, onCancel }: Prod
           value={price}
           onChange={setPrice}
           disabled={isLoading}
-          className="w-fit"
-          inputClassName="w-28"
+          className="w-full"
+          inputClassName="w-auto flex-1"
         />
       </div>
 

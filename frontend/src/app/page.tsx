@@ -131,7 +131,7 @@ export default async function Home() {
       </section>
 
       <section className="mt-4 grid gap-4 md:grid-cols-3">
-        <LedgerPanel className="md:col-span-2">
+        <LedgerPanel className="min-w-0 md:col-span-2">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-lg font-semibold tracking-tight text-foreground">Top 5 más vendidos</h2>
             <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Semana actual</p>
@@ -142,26 +142,28 @@ export default async function Home() {
               No hay ventas registradas esta semana.
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="operational-table-head-row">
-                  <TableHead className="operational-table-head-cell">Producto</TableHead>
-                  <TableHead className="operational-table-head-cell">Sucursal</TableHead>
-                  <TableHead className="operational-table-head-cell text-right">Cant. Vendida</TableHead>
-                  <TableHead className="operational-table-head-cell text-right">Ingreso</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {topProducts.map((p) => (
-                  <TableRow key={`${p.productId}-${p.branchId}`}>
-                    <TableCell className="font-medium">{p.productName}</TableCell>
-                    <TableCell>{p.branchName}</TableCell>
-                    <TableCell className="text-right">{p.quantitySold}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(Number(p.totalSold))}</TableCell>
+            <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+              <Table className="min-w-[640px]">
+                <TableHeader>
+                  <TableRow className="operational-table-head-row">
+                    <TableHead className="operational-table-head-cell">Producto</TableHead>
+                    <TableHead className="operational-table-head-cell">Sucursal</TableHead>
+                    <TableHead className="operational-table-head-cell text-right">Cant. Vendida</TableHead>
+                    <TableHead className="operational-table-head-cell text-right">Ingreso</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {topProducts.map((p) => (
+                    <TableRow key={`${p.productId}-${p.branchId}`}>
+                      <TableCell className="max-w-[220px] truncate font-medium">{p.productName}</TableCell>
+                      <TableCell>{p.branchName}</TableCell>
+                      <TableCell className="text-right">{p.quantitySold}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(Number(p.totalSold))}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
 
           <div className="mt-5 flex flex-wrap items-center gap-3">

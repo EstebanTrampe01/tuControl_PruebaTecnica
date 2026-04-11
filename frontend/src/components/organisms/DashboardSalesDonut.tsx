@@ -60,8 +60,8 @@ export function DashboardSalesDonut({ items, total }: DashboardSalesDonutProps) 
       <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Ventas hoy por sucursal</p>
 
       <div className="mt-3">
-        <div className="relative mx-auto w-fit">
-          <svg width="140" height="140" viewBox="0 0 112 112" className="-rotate-90">
+        <div className="relative mx-auto aspect-square w-full max-w-[220px] sm:max-w-[240px]">
+          <svg viewBox="0 0 112 112" className="h-full w-full -rotate-90">
             <circle cx="56" cy="56" r="42" stroke="currentColor" strokeWidth="12" className="text-muted/80" fill="none" />
 
             {slices.map((slice, index) => (
@@ -89,8 +89,10 @@ export function DashboardSalesDonut({ items, total }: DashboardSalesDonutProps) 
             ))}
           </svg>
 
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <span className="text-xs font-semibold text-foreground">{formatCurrency(total)}</span>
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-6">
+            <span className="text-center text-[11px] font-semibold leading-tight text-foreground sm:text-xs">
+              {formatCurrency(total)}
+            </span>
           </div>
         </div>
 
@@ -98,16 +100,16 @@ export function DashboardSalesDonut({ items, total }: DashboardSalesDonutProps) 
           {slices.map((slice, index) => (
             <motion.div
               key={slice.branchName}
-              className="donut-legend-item flex items-center justify-between gap-2 text-xs"
+              className="donut-legend-item flex min-w-0 items-center justify-between gap-2 text-xs"
               initial={prefersReducedMotion ? false : { opacity: 0, x: -8 }}
               animate={prefersReducedMotion ? undefined : { opacity: 1, x: 0 }}
               transition={{ duration: 0.35, delay: 0.15 + index * 0.06, ease: 'easeOut' }}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: slice.color }} />
                 <span className="truncate text-muted-foreground">{slice.branchName}</span>
               </div>
-              <span className="font-medium text-foreground">{Math.round(slice.percentage)}%</span>
+              <span className="shrink-0 font-medium text-foreground">{Math.round(slice.percentage)}%</span>
             </motion.div>
           ))}
         </div>
