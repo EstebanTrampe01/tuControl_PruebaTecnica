@@ -1,27 +1,18 @@
 import { NotFoundException } from '@nestjs/common';
-import { getRepositoryToken } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Branch } from '../branches/entities/branch.entity';
-import { Product } from '../products/entities/product.entity';
 import { InventoryService } from './inventory.service';
-import { Inventory } from './entities/inventory.entity';
+import { InventoryRepository } from './inventory.repository';
 
 describe('InventoryService', () => {
   let service: InventoryService;
 
   const inventoryRepository = {
-    find: jest.fn(),
-    findOneBy: jest.fn(),
+    findAll: jest.fn(),
+    findByProductAndBranch: jest.fn(),
+    findProductById: jest.fn(),
+    findBranchById: jest.fn(),
     create: jest.fn(),
     save: jest.fn(),
-  };
-
-  const productsRepository = {
-    findOneBy: jest.fn(),
-  };
-
-  const branchesRepository = {
-    findOneBy: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -31,16 +22,8 @@ describe('InventoryService', () => {
       providers: [
         InventoryService,
         {
-          provide: getRepositoryToken(Inventory),
+          provide: InventoryRepository,
           useValue: inventoryRepository,
-        },
-        {
-          provide: getRepositoryToken(Product),
-          useValue: productsRepository,
-        },
-        {
-          provide: getRepositoryToken(Branch),
-          useValue: branchesRepository,
         },
       ],
     }).compile();
@@ -49,19 +32,19 @@ describe('InventoryService', () => {
   });
 
   it('devuelve inventario ordenado y filtrado', async () => {
-    inventoryRepository.find.mockResolvedValueOnce([]);
+    inventoryRepository.findAll.mockResolvedValueOnce([]);
 
     await service.findAll({ branchId: 1, productId: 2 });
 
-    expect(inventoryRepository.find).toHaveBeenCalledWith({
-      where: { productId: 2, branchId: 1 },
-      order: { productId: 'ASC', branchId: 'ASC' },
+    expect(inventoryRepository.findAll).toHaveBeenCalledWith({
+      branchId: 1,
+      productId: 2,
     });
   });
 
   it('lanza error cuando el producto no existe', async () => {
-    productsRepository.findOneBy.mockResolvedValueOnce(null);
-    branchesRepository.findOneBy.mockResolvedValueOnce({ id: 1 });
+    inventoryRepository.findProductById.mockResolvedValueOnce(null);
+    inventoryRepository.findBranchById.mockResolvedValueOnce({ id: 1 });
 
     await expect(
       service.upsert({ productId: 1, branchId: 1, stock: 10 }),
@@ -69,8 +52,8 @@ describe('InventoryService', () => {
   });
 
   it('lanza error cuando la sucursal no existe', async () => {
-    productsRepository.findOneBy.mockResolvedValueOnce({ id: 1 });
-    branchesRepository.findOneBy.mockResolvedValueOnce(null);
+    inventoryRepository.findProductById.mockResolvedValueOnce({ id: 1 });
+    inventoryRepository.findBranchById.mockResolvedValueOnce(null);
 
     await expect(
       service.upsert({ productId: 1, branchId: 1, stock: 10 }),
@@ -80,9 +63,11 @@ describe('InventoryService', () => {
   it('actualiza el registro de inventario existente', async () => {
     const existingInventory = { productId: 1, branchId: 1, stock: 5 };
 
-    productsRepository.findOneBy.mockResolvedValueOnce({ id: 1 });
-    branchesRepository.findOneBy.mockResolvedValueOnce({ id: 1 });
-    inventoryRepository.findOneBy.mockResolvedValueOnce(existingInventory);
+    inventoryRepository.findProductById.mockResolvedValueOnce({ id: 1 });
+    inventoryRepository.findBranchById.mockResolvedValueOnce({ id: 1 });
+    inventoryRepository.findByProductAndBranch.mockResolvedValueOnce(
+      existingInventory,
+    );
     inventoryRepository.save.mockImplementationOnce((value: unknown) => value);
 
     const result = await service.upsert({
@@ -101,9 +86,9 @@ describe('InventoryService', () => {
   });
 
   it('crea registro de inventario cuando no existe', async () => {
-    productsRepository.findOneBy.mockResolvedValueOnce({ id: 1 });
-    branchesRepository.findOneBy.mockResolvedValueOnce({ id: 1 });
-    inventoryRepository.findOneBy.mockResolvedValueOnce(null);
+    inventoryRepository.findProductById.mockResolvedValueOnce({ id: 1 });
+    inventoryRepository.findBranchById.mockResolvedValueOnce({ id: 1 });
+    inventoryRepository.findByProductAndBranch.mockResolvedValueOnce(null);
     inventoryRepository.create.mockImplementationOnce(
       (value: unknown) => value,
     );

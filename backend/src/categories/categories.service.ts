@@ -1,18 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Category } from './entities/category.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { CategoriesRepository } from './categories.repository';
 
 @Injectable()
 export class CategoriesService {
-  constructor(
-    @InjectRepository(Category)
-    private readonly categoriesRepository: Repository<Category>,
-  ) {}
+  constructor(private readonly categoriesRepository: CategoriesRepository) {}
 
   findAll() {
-    return this.categoriesRepository.find({
-      order: { id: 'ASC' },
-    });
+    return this.categoriesRepository.findAll();
   }
 }

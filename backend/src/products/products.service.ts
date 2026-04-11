@@ -1,41 +1,20 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
-import { Category } from '../categories/entities/category.entity';
-import { Product } from './entities/product.entity';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Inventory } from '../inventory/entities/inventory.entity';
-import { SaleItem } from '../sales/entities/sale-item.entity';
+import { ProductsRepository } from './products.repository';
 
 @Injectable()
 export class ProductsService {
-  constructor(
-    @InjectRepository(Product)
-    private readonly productsRepository: Repository<Product>,
-    @InjectRepository(Category)
-    private readonly categoriesRepository: Repository<Category>,
-    @InjectRepository(Inventory)
-    private readonly inventoryRepository: Repository<Inventory>,
-    @InjectRepository(SaleItem)
-    private readonly saleItemsRepository: Repository<SaleItem>,
-  ) {}
+  constructor(private readonly productsRepository: ProductsRepository) {}
 
   findAll(categoryId?: number) {
-    const where = categoryId
-      ? { categoryId, deletedAt: IsNull() }
-      : { deletedAt: IsNull() };
-
-    return this.productsRepository.find({
-      where,
-      order: { id: 'ASC' },
-    });
+    return this.productsRepository.findAll(categoryId);
   }
 
   async create(payload: CreateProductDto) {
-    const category = await this.categoriesRepository.findOneBy({
-      id: payload.categoryId,
-    });
+    const category = await this.productsRepository.findCategoryById(
+      payload.categoryId,
+    );
 
     if (!category) {
       throw new NotFoundException(
@@ -55,21 +34,16 @@ export class ProductsService {
   }
 
   async update(id: number, payload: UpdateProductDto) {
-    const product = await this.productsRepository.findOne({
-      where: {
-        id,
-        deletedAt: IsNull(),
-      },
-    });
+    const product = await this.productsRepository.findActiveById(id);
 
     if (!product) {
       throw new NotFoundException(`Producto con id: ${id} no encontrado`);
     }
 
     if (payload.categoryId !== undefined) {
-      const category = await this.categoriesRepository.findOneBy({
-        id: payload.categoryId,
-      });
+      const category = await this.productsRepository.findCategoryById(
+        payload.categoryId,
+      );
 
       if (!category) {
         throw new NotFoundException(
@@ -102,7 +76,7 @@ export class ProductsService {
   }
 
   async remove(id: number) {
-    const product = await this.productsRepository.findOneBy({ id });
+    const product = await this.productsRepository.findById(id);
 
     if (!product) {
       throw new NotFoundException(`Producto con id: ${id} no encontrado`);
@@ -117,12 +91,10 @@ export class ProductsService {
       };
     }
 
-    const saleUsageCount = await this.saleItemsRepository.countBy({
-      productId: id,
-    });
+    const saleUsageCount = await this.productsRepository.countSaleUsage(id);
 
     if (saleUsageCount > 0) {
-      await this.productsRepository.update(id, { deletedAt: new Date() });
+      await this.productsRepository.softDeleteById(id);
 
       return {
         id,
@@ -131,8 +103,8 @@ export class ProductsService {
       };
     }
 
-    await this.inventoryRepository.delete({ productId: id });
-    await this.productsRepository.delete(id);
+    await this.productsRepository.deleteInventoryByProductId(id);
+    await this.productsRepository.hardDeleteById(id);
 
     return {
       id,
