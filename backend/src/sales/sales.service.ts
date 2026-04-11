@@ -4,40 +4,15 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource, In } from 'typeorm';
-import { Branch } from '../branches/entities/branch.entity';
-import { Inventory } from '../inventory/entities/inventory.entity';
-import { Product } from '../products/entities/product.entity';
 import { CreateSaleDto } from './dto/create-sale.dto';
-import { SaleItem } from './entities/sale-item.entity';
-import { Sale } from './entities/sale.entity';
+import { SalesRepository } from './sales.repository';
 
 @Injectable()
 export class SalesService {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(private readonly salesRepository: SalesRepository) {}
 
   async findAll() {
-    const rows = await this.dataSource
-      .createQueryBuilder()
-      .select('s.id', 'saleId')
-      .addSelect('s.branch_id', 'branchId')
-      .addSelect('s.sold_at', 'soldAt')
-      .addSelect('si.product_id', 'productId')
-      .addSelect('si.quantity', 'quantity')
-      .addSelect('si.unit_price', 'unitPrice')
-      .from(Sale, 's')
-      .leftJoin(SaleItem, 'si', 'si.sale_id = s.id')
-      .orderBy('s.sold_at', 'DESC')
-      .addOrderBy('s.id', 'DESC')
-      .getRawMany<{
-        saleId: string;
-        branchId: string;
-        soldAt: string;
-        productId: string | null;
-        quantity: string | null;
-        unitPrice: string | null;
-      }>();
+    const rows = await this.salesRepository.findAllRows();
 
     const salesMap = new Map<
       number,
@@ -102,8 +77,8 @@ export class SalesService {
   async create(payload: CreateSaleDto) {
     this.validateNoDuplicateProducts(payload);
 
-    return this.dataSource.transaction(async (manager) => {
-      const branch = await manager.findOneBy(Branch, { id: payload.branchId });
+    return this.salesRepository.runInTransaction(async (tx) => {
+      const branch = await tx.findBranchById(payload.branchId);
 
       if (!branch) {
         throw new NotFoundException(
@@ -113,9 +88,7 @@ export class SalesService {
 
       const productIds = payload.items.map((item) => item.productId);
 
-      const products = await manager.findBy(Product, {
-        id: In(productIds),
-      });
+      const products = await tx.findProductsByIds(productIds);
 
       if (products.length !== productIds.length) {
         const foundIds = new Set(products.map((product) => product.id));
@@ -126,14 +99,10 @@ export class SalesService {
         );
       }
 
-      const inventoryRows = await manager
-        .createQueryBuilder(Inventory, 'inventory')
-        .setLock('pessimistic_write')
-        .where('inventory.branch_id = :branchId', {
-          branchId: payload.branchId,
-        })
-        .andWhere('inventory.product_id IN (:...productIds)', { productIds })
-        .getMany();
+      const inventoryRows = await tx.lockInventoryRows(
+        payload.branchId,
+        productIds,
+      );
 
       const inventoryByProductId = new Map(
         inventoryRows.map((inventory) => [inventory.productId, inventory]),
@@ -149,11 +118,7 @@ export class SalesService {
         }
       }
 
-      const sale = await manager.save(
-        manager.create(Sale, {
-          branchId: payload.branchId,
-        }),
-      );
+      const sale = await tx.createSale(payload.branchId);
 
       const productById = new Map(
         products.map((product) => [product.id, product]),
@@ -179,17 +144,15 @@ export class SalesService {
         const lineTotal = this.roundMoney(unitPrice * item.quantity);
         total += lineTotal;
 
-        await manager.save(
-          manager.create(SaleItem, {
-            saleId: sale.id,
-            productId: item.productId,
-            quantity: item.quantity,
-            unitPrice: unitPrice.toFixed(2),
-          }),
-        );
+        await tx.createSaleItem({
+          saleId: sale.id,
+          productId: item.productId,
+          quantity: item.quantity,
+          unitPrice: unitPrice.toFixed(2),
+        });
 
         currentInventory.stock -= item.quantity;
-        await manager.save(currentInventory);
+        await tx.saveInventory(currentInventory);
 
         saleItemsResponse.push({
           productId: item.productId,

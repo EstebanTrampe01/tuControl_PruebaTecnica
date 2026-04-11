@@ -1,18 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Branch } from './entities/branch.entity';
+import { BranchesRepository } from './branches.repository';
 
 @Injectable()
 export class BranchesService {
-  constructor(
-    @InjectRepository(Branch)
-    private readonly branchesRepository: Repository<Branch>,
-  ) {}
+  constructor(private readonly branchesRepository: BranchesRepository) {}
 
   findAll() {
-    return this.branchesRepository.find({
-      order: { id: 'ASC' },
-    });
+    return this.branchesRepository.findAll();
   }
 }

@@ -7,13 +7,14 @@ import { Inventory } from '../inventory/entities/inventory.entity';
 import { Product } from '../products/entities/product.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Branch } from '../branches/entities/branch.entity';
+import { SalesRepository } from './sales.repository';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Sale, SaleItem, Inventory, Product, Branch]),
   ],
   controllers: [SalesController],
-  providers: [SalesService],
+  providers: [SalesService, SalesRepository],
   exports: [TypeOrmModule],
 })
 export class SalesModule {}

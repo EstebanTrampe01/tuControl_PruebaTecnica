@@ -1,43 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Branch } from '../branches/entities/branch.entity';
-import { Product } from '../products/entities/product.entity';
 import { UpdateInventoryDto } from './dto/update-inventory.dto';
-import { Inventory } from './entities/inventory.entity';
+import { InventoryRepository } from './inventory.repository';
 
 @Injectable()
 export class InventoryService {
-  constructor(
-    @InjectRepository(Inventory)
-    private readonly inventoryRepository: Repository<Inventory>,
-    @InjectRepository(Product)
-    private readonly productsRepository: Repository<Product>,
-    @InjectRepository(Branch)
-    private readonly branchesRepository: Repository<Branch>,
-  ) {}
+  constructor(private readonly inventoryRepository: InventoryRepository) {}
 
   findAll(filters?: { productId?: number; branchId?: number }) {
-    const where: { productId?: number; branchId?: number } = {};
-
-    if (filters?.productId) {
-      where.productId = filters.productId;
-    }
-
-    if (filters?.branchId) {
-      where.branchId = filters.branchId;
-    }
-
-    return this.inventoryRepository.find({
-      where,
-      order: { productId: 'ASC', branchId: 'ASC' },
-    });
+    return this.inventoryRepository.findAll(filters);
   }
 
   async upsert(payload: UpdateInventoryDto) {
     const [product, branch] = await Promise.all([
-      this.productsRepository.findOneBy({ id: payload.productId }),
-      this.branchesRepository.findOneBy({ id: payload.branchId }),
+      this.inventoryRepository.findProductById(payload.productId),
+      this.inventoryRepository.findBranchById(payload.branchId),
     ]);
 
     if (!product) {
@@ -52,10 +28,11 @@ export class InventoryService {
       );
     }
 
-    const existingInventory = await this.inventoryRepository.findOneBy({
-      productId: payload.productId,
-      branchId: payload.branchId,
-    });
+    const existingInventory =
+      await this.inventoryRepository.findByProductAndBranch(
+        payload.productId,
+        payload.branchId,
+      );
 
     if (existingInventory) {
       existingInventory.stock = payload.stock;

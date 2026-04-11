@@ -162,7 +162,7 @@ export function AppShell({ children }: AppShellProps) {
                 {mobileOpen ? <X className="h-4 w-4 text-muted-foreground" /> : <Menu className="h-4 w-4 text-muted-foreground" />}
               </Button>
               <span className="hidden text-xs uppercase tracking-[0.14em] text-slate-400 sm:inline dark:text-zinc-500">
-                Retail Internal Tool
+                Control de Inventario
               </span>
             </div>
 
