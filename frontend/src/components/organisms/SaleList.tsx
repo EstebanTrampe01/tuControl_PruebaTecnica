@@ -150,7 +150,7 @@ export function SaleList({ sales, productNamesById }: SaleListProps) {
         )}
       </div>
 
-      <div className="flex items-center justify-between text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
         <p className="text-muted-foreground">
           Página {page} de {totalPages}
         </p>

@@ -38,7 +38,8 @@ export function InventoryGrid({
   }
 
   return (
-    <Table className="[&_tbody_tr]:border-b-slate-100 [&_tbody_tr:hover]:bg-primary-50/60 dark:[&_tbody_tr]:border-zinc-800 dark:[&_tbody_tr:hover]:bg-zinc-800/60 [&_tr:last-child]:border-0">
+    <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+      <Table className="min-w-[640px] [&_tbody_tr]:border-b-slate-100 [&_tbody_tr:hover]:bg-primary-50/60 dark:[&_tbody_tr]:border-zinc-800 dark:[&_tbody_tr:hover]:bg-zinc-800/60 [&_tr:last-child]:border-0">
       <TableHeader>
         <TableRow className="operational-table-head-row">
           <TableHead className="operational-table-head-cell">Producto</TableHead>
@@ -53,7 +54,7 @@ export function InventoryGrid({
       <TableBody>
         {rows.map((row) => (
           <TableRow key={row.productId}>
-            <TableCell className="font-medium text-foreground">{row.productName}</TableCell>
+            <TableCell className="max-w-[240px] truncate font-medium text-foreground">{row.productName}</TableCell>
 
             {row.cells.map((cell) => (
               <TableCell key={`${row.productId}-${cell.branchId}`} className="text-center">
@@ -79,5 +80,6 @@ export function InventoryGrid({
         ))}
       </TableBody>
     </Table>
+    </div>
   );
 }
