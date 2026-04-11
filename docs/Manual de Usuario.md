@@ -38,7 +38,7 @@ Desde el menu lateral se accede a:
 
 ### 4.1 Dashboard operativo
 
-![Dashboard](docs/assets/img-user/dashboard.png)
+![Dashboard](assets/img-user/dashboard.png)
 
 En esta vista se observan indicadores de operacion:
 
@@ -53,7 +53,7 @@ Esta pantalla es la vista de monitoreo rapido para supervision diaria.
 
 ### 4.2 Catalogo - listado de productos
 
-![Lista de productos](docs/assets/img-user/lista%20de%20productos.png)
+![Lista de productos](assets/img-user/lista%20de%20productos.png)
 
 La tabla de catalogo permite:
 
@@ -66,7 +66,7 @@ La tabla de catalogo permite:
 
 ### 4.3 Catalogo - creacion de producto
 
-![Crear producto](docs/assets/img-user/crear%20producto.png)
+![Crear producto](assets/img-user/crear%20producto.png)
 
 Desde el boton **Nuevo Producto** se abre el formulario de alta.
 
@@ -84,7 +84,7 @@ Al guardar, el producto se agrega al listado y queda disponible para inventario 
 
 ### 4.4 Catalogo - detalle de producto
 
-![Detalles de producto](docs/assets/img-user/detalles%20de%20producto.png)
+![Detalles de producto](assets/img-user/detalles%20de%20producto.png)
 
 La vista de detalle permite consultar rapidamente la informacion completa del producto sin salir del listado
 
@@ -92,7 +92,7 @@ La vista de detalle permite consultar rapidamente la informacion completa del pr
 
 ### 4.5 Catalogo - edicion de producto
 
-![Editar producto](docs/assets/img-user/editar%20producto.png)
+![Editar producto](assets/img-user/editar%20producto.png)
 
 La edicion permite actualizar datos del producto existente
 
@@ -105,7 +105,7 @@ Proceso:
 
 ### 4.6 Catalogo - eliminacion de producto
 
-![Eliminar producto](docs/assets/img-user/eliminar%20producto.png)
+![Eliminar producto](assets/img-user/eliminar%20producto.png)
 
 La eliminacion solicita confirmacion para evitar acciones accidentales.
 
@@ -118,7 +118,7 @@ Regla funcional:
 
 ### 4.7 Inventario - matriz por sucursal
 
-![Inventario matriz](docs/assets/img-user/inventario%20matriz.png)
+![Inventario matriz](assets/img-user/inventario%20matriz.png)
 
 Esta vista muestra el stock por producto y por sucursal (Centro, Norte, Occidente).
 
@@ -132,7 +132,7 @@ Incluye:
 
 ### 4.8 Inventario - ajuste de stock
 
-![Ajustar inventario](docs/assets/img-user/ajustar%20inventario.png)
+![Ajustar inventario](assets/img-user/ajustar%20inventario.png)
 
 Desde una celda se abre el dialogo para ajustar unidades.
 
@@ -145,7 +145,7 @@ Reglas:
 
 ### 4.9 Ventas - formulario de registro
 
-![Venta form](docs/assets/img-user/venta%20form.png)
+![Venta form](assets/img-user/venta%20form.png)
 
 El formulario de ventas permite:
 
@@ -160,7 +160,7 @@ Si hay stock insuficiente, el sistema bloquea la confirmacion.
 
 ### 4.10 Ventas - venta registrada
 
-![Venta registro](docs/assets/img-user/venta%20registro.png)
+![Venta registro](assets/img-user/venta%20registro.png)
 
 Al confirmar la venta:
 
@@ -172,7 +172,7 @@ Al confirmar la venta:
 
 ### 4.11 Reportes - filtros de consulta
 
-![Reportes filtros](docs/assets/img-user/reportes%20filtros.png)
+![Reportes filtros](assets/img-user/reportes%20filtros.png)
 
 El modulo de reportes permite configurar:
 
@@ -188,7 +188,7 @@ La consulta principal corresponde a top productos vendidos por sucursal en el pe
 
 ### 4.12 Reportes - resultados
 
-![Reportes resultados](docs/assets/img-user/reportes%20resultados.png)
+![Reportes resultados](assets/img-user/reportes%20resultados.png)
 
 El resultado muestra:
 
@@ -203,19 +203,19 @@ Tambien incluye visualizacion grafica, total acumulado y paginación.
 
 ### 4.13 Personalizacion - modo oscuro
 
-![Modo oscuro](docs/assets/img-user/modo%20oscuro.png)
+![Modo oscuro](assets/img-user/modo%20oscuro.png)
 
 ---
 
 ### 4.14 Experiencia responsive - vista movil
 
-![Vista movil 1](docs/assets/img-user/vista%20movil%201.jpg)
+![Vista movil 1](assets/img-user/vista%20movil%201.jpg)
 
-![Vista movil 2](docs/assets/img-user/vista%20movil%202.jpg)
+![Vista movil 2](assets/img-user/vista%20movil%202.jpg)
 
-![Vista movil 3](docs/assets/img-user/vista%20movil%203.jpg)
+![Vista movil 3](assets/img-user/vista%20movil%203.jpg)
 
-![Vista movil 4](docs/assets/img-user/vista%20movil%204.jpg)
+![Vista movil 4](assets/img-user/vista%20movil%204.jpg)
 
 ## 5. Reglas funcionales importantes
 
@@ -228,7 +228,9 @@ Tambien incluye visualizacion grafica, total acumulado y paginación.
 
 ## 6. Arquitectura utlizada:
 
-![](docs/assets/diagrams/ARQUITECTURA USADA)
+![](assets/diagrams/1.png)
 
 
 ## 7. Flujo de desplieuge
+
+![](assets/diagrams/2.png)
